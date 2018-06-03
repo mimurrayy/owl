@@ -1,11 +1,13 @@
 #!/usr/bin/python
 
 import os
+from ..util import *
 
 class transition():
-    def __init__(self, element, charge, transition_wavelength):
-        self.element = element.title()
-        self.charge = charge
+    def __init__(self, particle, transition_wavelength):
+        self.particle = particle
+        self.element = particle.element
+        self.charge = particle.charge
         self.wl = round(transition_wavelength, 3)
         self.upperE = None # Energy in eV
         self.lowerE = None
@@ -22,7 +24,7 @@ class transition():
         folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "nist-db")
         lines_file = os.path.join(folder, (self.element.lower() + "-lines.txt"))
         levels_file = os.path.join(folder, (self.element.lower() + str(self.charge+1) + "-levels.txt"))
-        spec_name = self.get_spectroscopic_name(self.element, self.charge)
+        spec_name = get_spectroscopic_name(self.element, self.charge)
         for line in open(lines_file, 'r').readlines():
             if line.startswith(spec_name):
                 line = line.replace(" ", "")
@@ -44,24 +46,6 @@ class transition():
                 array = line.split("|")
                 self.lowerJ = float(eval(array[2]))
                 self.lowerG = float(array[4])
-
-
-    def get_spectroscopic_name(self, element=None, charge=None):
-        if element == None:
-            element = self.element
-        if charge == None:
-            charge = self.charge
-        roman = ["I","II","III","IV","V","VI"]
-        name = element.title() # ti -> Ti
-        designation = roman[charge]
-        return name + " " + designation
-
-    def parse_spectroscopic_name(name):
-        roman = ["I","II","III","IV","V","VI"][::-1]
-        for i,num in enumerate(roman):
-            if num in name:
-                name = name.replace(num, "").strip()
-                return name.title(),(len(roman)-i-1)
 
     def get_instrumental_params(self):
         "Database for instrumental functions for lines."
