@@ -35,6 +35,16 @@ class pgs():
             (pixel_array - (size/2)- (cam_shift)*size/1024)/4150)) # formula to get wavelenght scale
             return (cw + delta_wl)
 
+    def get_instrumental_params(self, transition):
+        "Database for instrumental functions for lines."
+        if transition.element == "Ti" and round(transition.wl,0) == 453.0:
+            return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
+        if transition.element == "Ti" and transition.charge == 0 and round(transition.wl,0) == 399:
+            return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
+        if transition.element == "Ar" and transition.charge == 1 and round(transition.wl,0) == 473:
+            return (0.00416, 0.00322, 1.2025, 0.0, 2.5765, 0.0029, 0.0139)
+
+
     def instrument_function(self, x, xc, transition=None, params = None):
         """ Derived with a HeNe-Laser for 1,2 Order and a HollowCathode Ti Line for 3 Order
         and a Ne II Line for the 4th Order.
@@ -44,7 +54,7 @@ class pgs():
         if params:
             w1,w2,mu1,mu2,Hg,dx,w3 = params
         elif transition:
-            w1,w2,mu1,mu2,Hg,dx,w3 = transition.get_instrumental_params()
+            w1,w2,mu1,mu2,Hg,dx,w3 = self.get_instrumental_params(transition)
         lx = x[x<=xc]
         left_part = (0.5 * w1 / (mu1/np.pi + (1-mu1) * np.sqrt(np.log(2)/np.pi))
             * ( mu1 * (2/np.pi) * (w1 / (4*(lx-xc)**2 + w1**2))

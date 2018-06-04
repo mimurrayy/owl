@@ -47,16 +47,5 @@ class transition():
                 self.lowerJ = float(eval(array[2]))
                 self.lowerG = float(array[4])
 
-    def get_instrumental_params(self):
-        "Database for instrumental functions for lines."
-        if self.element == "Ti" and (self.wl == 453.324 or self.wl == 453.478 or self.wl == 453.396):
-            return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
-        if self.element == "Ti" and self.charge == 0 and (self.wl == 399.864 or self.wl == 398.976):
-            return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
-        if self.element == "Ar" and self.charge == 1 and (self.wl == 472.687):
-            return (0.00416, 0.00322, 1.2025, 0.0, 2.5765, 0.0029, 0.0139)
-
-
-
 
 
