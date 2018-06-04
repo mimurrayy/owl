@@ -11,10 +11,15 @@ class particle():
         else:
             self.element = element.title()
             self.charge = charge  
+
         mass = {'Ti' :  47.867,
                 'Ar' :  39.948 }
-        self.m = mass[self.element]
+
+
         E_ion = {'Ti' :   6.8281,
                  'Ar' :  15.7596 }
+
+
+        self.m = mass[self.element]
         self.Ei = E_ion[self.element]
 
