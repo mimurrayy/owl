@@ -16,6 +16,9 @@ __all__ = [
     "zeeman",
     "get_spectroscopic_name",
     "parse_spectroscopic_name",
+    "running_mean",
+    "fft_clean",
+    "lorentz_function"
     ]
 
 def interpol(new_x, y, old_x):
@@ -121,3 +124,15 @@ def parse_spectroscopic_name(name):
             name = name.replace(num, "").strip()
             return name.title(),(len(roman)-i-1)
 
+def running_mean(x, N):
+    cumsum = np.cumsum(np.insert(x, 0, 0))
+    return (cumsum[N:] - cumsum[:-N]) / float(N)
+
+def fft_clean(spec, N):
+    Hn = np.fft.rfft(spec)
+    Hn[N:] = 0
+    return np.fft.irfft(Hn)
+
+def lorentz_function(x, xc, w):
+    "A is area, w is FWHM, H = y0 + 2*A / (np.pi * w)"
+    return ((2*1/np.pi)*(w/(4*(x-xc)**2 + w**2)))
