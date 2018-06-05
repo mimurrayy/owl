@@ -5,9 +5,12 @@ from scipy import constants as const
 from scipy import interpolate
 #from . import emitter
 from .util import *
+from . import stark
 
 class emission_line():
-    def __init__(self, spectrometer, transition, wl, T = None, Eb = None, gamma = None, B = None, ne = None, P = None):
+    def __init__(self, spectrometer, transition, wl,
+    T = None, Eb = None, gamma = None, B = None, ne = None, Te = None, P = None):
+        """ T in K, Eb,Te in eV, ne in m^-3"""
         self.wl = wl
         self.transition = transition
         particle = transition.particle
@@ -23,7 +26,13 @@ class emission_line():
         self.side = False # symmetric version of Thompson?
         self.last_profiles = []
 
-    def get_profile(self, x, A, T = None, Eb = None, gamma = None, B = None, ne = None, P = None):
+
+    def get_profile(self, x, A,
+            wl=None, T = None, Eb = None, gamma = None, B = None, P = None,
+            ne = None, Te = None, ion = None):
+
+        if wl == None and self.wl:
+            wl = self.wl
         if T == None and self.T:
             T = self.T
         if Eb == None and self.Eb:
@@ -45,7 +54,7 @@ class emission_line():
 
         # We let the instrumental profile determine center position.
         # ALL other components are shifted to the middle!
-        instrumental_profile = self.spectrometer.instrument_function(x, self.wl, self.transition)
+        instrumental_profile = self.spectrometer.instrument_function(x, wl, self.transition)
         instrumental_profile = instrumental_profile/resolution/1024
         components = []
 
@@ -73,7 +82,10 @@ class emission_line():
             components.append(zeeman_pattern)
 
         if ne:
-            print("TODO")
+            this_stark = stark.stark(self.transition)
+            stark_profile = this_stark.get_profile(x, ne, Te, ion)
+            self.last_profiles.append(stark_profile)
+            components.append(stark_profile)
 
         if P:
             print("TODO")
@@ -86,7 +98,6 @@ class emission_line():
         lowres_y = interpol(x, y, orig_x)
         self.last_profiles.append(lowres_y)
         return lowres_y
-
 
 
     def get_instrumental_profile(self, x, wl=None):

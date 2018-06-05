@@ -16,7 +16,10 @@ class transition():
         self.upperG = None # Lande g factor
         self.lowerG = None
 
-        self.nist_info()
+        try:
+            self.nist_info()
+        except:
+            print("No NIST Databse available. Zeeman pattern calculation will fail.")
 
 
     def nist_info(self):
