@@ -1,10 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import numpy as np
 from ..util import *
+from .base_spectrometer import *
 
-class pgs():
-    def __init__(self, cw, order, grating_constant=1302.26, cam_shift=49):
+class pgs(base_spectrometer):
+    def __init__(self, cw, order=1, grating_constant=1302.26, cam_shift=49):
         self.cw = cw
         self.order = order
         self.grating_constant = grating_constant
