@@ -50,8 +50,10 @@ class emission_line():
         resolution = abs((x[-1]-x[0])/(len(x)-1))
         orig_x = x
         x = self.spectrometer.fine_x
+        if len(orig_x)<1024:
+            x = x[x>orig_x[0]]
+            x = x[x<orig_x[-1]]
         middle_wl = x[int(len(x)/2)]
-
         # We let the instrumental profile determine center position.
         # ALL other components are shifted to the middle!
         instrumental_profile = self.spectrometer.instrument_function(x, wl, self.transition)
@@ -80,7 +82,6 @@ class emission_line():
             zeeman_pattern = zeeman(x, middle_wl, B, t.upperJ, t.lowerJ, t.upperG, t.lowerG)/resolution
             self.last_profiles.append(zeeman_pattern)
             components.append(zeeman_pattern)
-
         if ne:
             this_stark = stark.stark(self.transition)
             stark_profile = this_stark.get_profile(x, ne, Te, ion)
