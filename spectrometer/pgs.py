@@ -76,6 +76,6 @@ class pgs(base_spectrometer):
     # alias
     instr = instrument_function
     instrumental_function = instrument_function
-
+    instrumental_profile = instrument_function
 
 
