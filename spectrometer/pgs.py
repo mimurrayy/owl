@@ -73,6 +73,19 @@ class pgs(base_spectrometer):
             y = y + Hg*gauss_function(x,xc+dx,w3)*1e-3
         return y
 
+    def load_spec(self, f):
+        num_lines = sum(1 for line in open(f))
+        columns = np.genfromtxt(f,skip_footer=num_lines-1027).T#[2][::-1]
+        x = self.x
+        data = []
+        data.append(x)
+        for y in columns[1:]:
+            if self.order == 1:
+                data.append(y)
+            else:
+                data.append(y[::-1])
+        return np.array(data)
+
     # alias
     instr = instrument_function
     instrumental_function = instrument_function
