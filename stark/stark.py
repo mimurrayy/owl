@@ -3,6 +3,7 @@
 import numpy as np
 from ..util import *
 from .gigosos_loader import *
+from .griem import *
 
 class stark():
     def __init__(self, transition, ion_perp = None):
@@ -12,6 +13,9 @@ class stark():
 
     def get_profile(self,x, ne, Te=None, perp=None):
         middle_wl = x[int(len(x)/2)]
+
+        ################ Hydrogen #############################################
+
         if self.transition.element == "H":
             if round(self.transition.wl,0) == 656:
                 if self.fast or not Te:
@@ -20,14 +24,12 @@ class stark():
                     # plasmas diagnostics
                     w = ((ne/1e23)**(0.67965)) * 1.098
                     return lorentz_function(x,middle_wl,w)
-
                 else:
                     this_loader = gigosos_loader(self.transition)
                     gigosos_x,y = this_loader.load(ne, Te, perp)
                     gigosos_x = gigosos_x + middle_wl # to nm
                     y = interpol(gigosos_x,y,x)
                     return y
-
 
             if round(self.transition.wl, 0) == 486:
                 if self.fast or not Te:
@@ -41,6 +43,15 @@ class stark():
                     gigosos_x,y = this_loader.load(ne, Te, perp)
                     y = interpol(gigosos_x,y,x)
                     return y
+
+        ################ Oxygen ###############################################
+
+        if self.transition.element == "O":
+            if round(self.transition.wl,0) == 777:
+                this_griem = griem(self.transition)
+                w,d = this_griem.get_width_shift(ne, Te)
+                # shift is ignored for now
+                return lorentz_function(x,middle_wl,w)
 
 
     
