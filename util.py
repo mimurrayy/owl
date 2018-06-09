@@ -8,9 +8,9 @@ from scipy import interpolate
 __all__ = [
     "interpol",
     "doppler_maxwell",
-    "gauss_function",
+    "gauss_function","gauss",
     "doppler_thompson",
-    "thompson_function",
+    "thompson_function","thompson",
     "thompson_side",
     "m_j",
     "zeeman",
@@ -18,7 +18,8 @@ __all__ = [
     "parse_spectroscopic_name",
     "running_mean",
     "fft_clean",
-    "lorentz_function"
+    "lorentz_function","lorentz",
+    "psd_voigt_function","psd_voigt"
     ]
 
 def interpol(new_x, y, old_x):
@@ -136,3 +137,14 @@ def fft_clean(spec, N):
 def lorentz_function(x, xc, w):
     "A is area, w is FWHM, H = y0 + 2*A / (np.pi * w)"
     return ((2*1/np.pi)*(w/(4*(x-xc)**2 + w**2)))
+
+def psd_voigt_function(x, xc, w, mu):
+    return (1 * ( mu * (2/np.pi) * (w / (4*(x-xc)**2 + w**2)) +
+        (1 - mu) * (np.sqrt(4*np.log(2)) / (np.sqrt(np.pi) * w)) *
+        np.exp(-(4*np.log(2)/w**2)*(x-xc)**2) )) # pseudo voidt function copied from origin
+
+# alias
+lorentz = lorentz_function
+psd_voigt = psd_voigt_function
+gauss = gauss_function
+thompson = thompson_function
