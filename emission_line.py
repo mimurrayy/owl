@@ -49,10 +49,14 @@ class emission_line():
         self.last_profiles = []
         resolution = abs((x[-1]-x[0])/(len(x)-1))
         orig_x = x
-        x = self.spectrometer.fine_x
-        if len(orig_x)<1024:
-            x = x[x>orig_x[0]]
-            x = x[x<orig_x[-1]]
+        try:
+            x = self.spectrometer.fine_x
+            if len(orig_x)<1024:
+                x = x[x>orig_x[0]]
+                x = x[x<orig_x[-1]]
+        except:
+            x = x
+
         middle_wl = x[int(len(x)/2)]
         # We let the instrumental profile determine center position.
         # ALL other components are shifted to the middle!
