@@ -88,7 +88,7 @@ class gigosos_loader():
     def rho_to_T(self,rho,ne):
         r0 = (3/(4 * np.pi * ne))**(1/3)
         T = ((ne*const.e**2)/(const.epsilon_0 * const.k))*(r0/rho)**2
-        T = T*0.999994
+        T = T*0.9999941
         # if round(T) in [99937.0,174099.0]:
         #     T = T - 1
         return T
