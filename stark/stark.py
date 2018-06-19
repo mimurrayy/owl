@@ -54,4 +54,22 @@ class stark():
                 return lorentz_function(x,middle_wl,w)
 
 
-    
+    def get_width(self, ne, Te=None, perp=None):
+        ################ Oxygen ###############################################
+
+        if self.transition.element == "O":
+            if round(self.transition.wl,0) == 777:
+                this_griem = griem(self.transition)
+                w,d = this_griem.get_width_shift(ne, Te)
+                # shift is ignored for now
+                return w
+
+    def get_shift(self, ne, Te=None, perp=None):
+        ################ Oxygen ###############################################
+
+        if self.transition.element == "O":
+            if round(self.transition.wl,0) == 777:
+                this_griem = griem(self.transition)
+                w,d = this_griem.get_width_shift(ne, Te)
+                # shift is ignored for now
+                return d
