@@ -3,6 +3,7 @@ import numpy as np
 from scipy.signal import fftconvolve as convolve
 from scipy import constants as const
 from scipy import interpolate
+from scipy.signal import filtfilt
 #from . import transition
 
 __all__ = [
@@ -19,7 +20,8 @@ __all__ = [
     "running_mean",
     "fft_clean",
     "lorentz_function","lorentz",
-    "psd_voigt_function","psd_voigt"
+    "psd_voigt_function","psd_voigt",
+    "fft_smooth"
     ]
 
 def interpol(new_x, y, old_x):
@@ -129,10 +131,16 @@ def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0))
     return (cumsum[N:] - cumsum[:-N]) / float(N)
 
-def fft_clean(spec, N):
-    Hn = np.fft.rfft(spec)
+def fft_clean(y, cutoff):
+    Hn = np.fft.rfft(y)
     Hn[N:] = 0
     return np.fft.irfft(Hn)
+
+def fft_smooth(y, smoothness):
+    n = smoothness # the larger n is, the smoother curve will be
+    b = [1.0 / n] * n
+    a = 1.0
+    return filtfilt(b,a,y)
 
 def lorentz_function(x, xc, w):
     "A is area, w is FWHM, H = y0 + 2*A / (np.pi * w)"
