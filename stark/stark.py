@@ -41,6 +41,7 @@ class stark():
                 else:
                     this_loader = gigosos_loader(self.transition)
                     gigosos_x,y = this_loader.load(ne, Te, perp)
+                    gigosos_x = gigosos_x + middle_wl # to nm
                     y = interpol(gigosos_x,y,x)
                     return y
 
