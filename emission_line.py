@@ -9,7 +9,8 @@ from . import stark
 
 class emission_line():
     def __init__(self, spectrometer, transition, wl,
-    T = None, Eb = None, gamma = None, B = None, ne = None, Te = None, P = None):
+    T = None, Eb = None, gamma = None, B = None, ne = None, Te = None, P = None,
+    side = False):
         """ T in K, Eb,Te in eV, ne in m^-3"""
         self.wl = wl
         self.transition = transition
@@ -45,7 +46,6 @@ class emission_line():
             ne = self.ne
         if P == None and self.P:
             P = self.P
-
         self.last_profiles = []
         resolution = abs((x[-1]-x[0])/(len(x)-1))
         orig_x = x
