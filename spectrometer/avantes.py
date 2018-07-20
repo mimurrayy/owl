@@ -22,7 +22,7 @@ class avantes(base_spectrometer):
     def get_instrumental_params(self, transition):
         "Database for instrumental functions for lines."
         # Placeholder, wrong!
-            return (2.48216407e+00, 3.63312977e-01)
+        return (2.48216407e+00, 3.63312977e-01)
 
 
     # alias
