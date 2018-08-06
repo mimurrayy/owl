@@ -29,3 +29,6 @@ class particle():
         self.m = mass[self.element]
         self.Ei = E_ion[self.element]
 
+    def spectroscopic_name(self):
+        return get_spectroscopic_name(self.element, self.charge)
+
