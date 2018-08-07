@@ -45,8 +45,12 @@ class pgs(base_spectrometer):
             return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
         if transition.element == "Ar" and transition.charge == 1 and round(transition.wl,0) == 473:
             return (0.00416, 0.00322, 1.2025, 0.0, 2.5765, 0.0029, 0.0139)
-        else:
+        if round(transition.wl,0) == 633 and self.order == 2:
+            return (0.00506, 0.00598, 0.7877, 0.5498, 0.6312, -5e-06, 0.0442)
+        elif self.order == 3:
             return (0.00416, 0.00322, 1.2025, 0.0, 2.5765, 0.0029, 0.0139)
+        else:
+            return (0.00506, 0.00598, 0.7877, 0.5498, 0.6312, -5e-06, 0.0442)
 
     def instrument_function(self, x, xc, transition=None, params = None):
         """ Derived with a HeNe-Laser for 1,2 Order and a HollowCathode Ti Line for 3 Order

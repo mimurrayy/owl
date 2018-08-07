@@ -46,7 +46,6 @@ class emission_line():
             ne = self.ne
         if P == None and self.P:
             P = self.P
-
         self.last_profiles = []
         resolution = abs((x[-1]-x[0])/(len(x)-1))
         orig_x = x

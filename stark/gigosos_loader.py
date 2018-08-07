@@ -15,7 +15,7 @@ class gigosos_loader():
         rho = r0/rD
 
         if perp:
-            emitter_m = self.transition.patricle.m
+            emitter_m = self.transition.particle.m
             reduced_m = (emitter_m * perp.m)/(emitter_m + perp.m)
             mu = reduced_m * Te/perp.T
         else:
@@ -109,7 +109,7 @@ class gigosos_loader():
         ne_name = str(int(round(np.log10(ne)*100,0)))
         T = str(int(round(self.rho_to_T(rho,ne),0)))
         T_name = str(T).zfill(7)
-        mu_name = str(mu*100).zfill(4)
+        mu_name = str(int(mu*100)).zfill(4)
         filename = filename + ne_name + "t" + T_name + "m" + mu_name + ".dlp"
 
         x,y = np.loadtxt(os.path.join(folder,filename)).T
