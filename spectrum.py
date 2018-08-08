@@ -42,10 +42,13 @@ class spectrum():
                     if len(array[1]) > 3:
                         emission_line['wl'] = float(array[1])
 
-                        if len(array[3]) > 1:
+                        substring = array[3].replace(" ","")
+                        if len(substring) > 0:
                             # Col sometimes contain strings, so...
-                            emission_line['rel_int'] = float(''.join(list(
-                                filter(str.isdigit, array[3]))))
+                            try:
+                                emission_line['rel_int'] = float(substring)
+                            except:
+                                emission_line['rel_int'] = -1
                         else:
                             emission_line['rel_int'] = -1
 
@@ -58,6 +61,7 @@ class spectrum():
                             emission_line['Ek'] = float(ele.split('-')[0])
                             # NIST does it the other way around
                         emission_lines.append(emission_line)
+
         return emission_lines
 
 
