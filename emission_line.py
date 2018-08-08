@@ -9,8 +9,8 @@ from . import stark
 
 class emission_line():
     def __init__(self, spectrometer, transition, wl,
-    T = None, Eb = None, gamma = None, B = None, ne = None, Te = None, P = None,
-    side = False):
+    T = None, Eb = None, gamma = None, B = None, ne = None, Te = None,
+    side=False, P = None):
         """ T in K, Eb,Te in eV, ne in m^-3"""
         self.wl = wl
         self.transition = transition
@@ -24,7 +24,7 @@ class emission_line():
         self.ne = ne
         self.P  = P
         self.spectrometer = spectrometer
-        self.side = False # symmetric version of Thompson?
+        self.side = side # symmetric version of Thompson?
         self.last_profiles = []
 
 
