@@ -37,15 +37,23 @@ class pgs(base_spectrometer):
             (pixel_array - (size/2)- (cam_shift)*size/1024)/4150)) # formula to get wavelenght scale
             return (cw + delta_wl)
 
-    def get_instrumental_params(self, transition):
+    def get_instrumental_params(self, transition = None, xc = None):
         "Database for instrumental functions for lines."
-        if transition.element == "Ti" and round(transition.wl,0) == 453.0:
+        if transition:
+            wl = transition.wl
+        if xc:
+            wl = xc
+        else:
+            wl = 0
+
+        if self.order == 3 and round(wl,0) == 453.0:
+            print("yeah?")
             return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
-        if transition.element == "Ti" and transition.charge == 0 and round(transition.wl,0) == 399:
+        if self.order == 3 and round(wl,0) == 399:
             return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
-        if transition.element == "Ar" and transition.charge == 1 and round(transition.wl,0) == 473:
+        if self.order == 3 and round(wl,0) == 473:
             return (0.00416, 0.00322, 1.2025, 0.0, 2.5765, 0.0029, 0.0139)
-        if round(transition.wl,0) == 633 and self.order == 2:
+        if round(wl,0) == 633 and self.order == 2:
             return (0.00506, 0.00598, 0.7877, 0.5498, 0.6312, -5e-06, 0.0442)
         elif self.order == 3:
             return (0.00416, 0.00322, 1.2025, 0.0, 2.5765, 0.0029, 0.0139)
@@ -61,7 +69,11 @@ class pgs(base_spectrometer):
         if params:
             w1,w2,mu1,mu2,Hg,dx,w3 = params
         elif transition:
-            w1,w2,mu1,mu2,Hg,dx,w3 = self.get_instrumental_params(transition)
+            w1,w2,mu1,mu2,Hg,dx,w3 = self.get_instrumental_params(
+                transition=transition)
+        elif xc:
+            w1,w2,mu1,mu2,Hg,dx,w3 = self.get_instrumental_params(xc=xc)
+
         lx = x[x<=xc]
         left_part = (0.5 * w1 / (mu1/np.pi + (1-mu1) * np.sqrt(np.log(2)/np.pi))
             * ( mu1 * (2/np.pi) * (w1 / (4*(lx-xc)**2 + w1**2))
