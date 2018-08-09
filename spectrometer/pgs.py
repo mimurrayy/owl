@@ -47,7 +47,6 @@ class pgs(base_spectrometer):
             wl = 0
 
         if self.order == 3 and round(wl,0) == 453.0:
-            print("yeah?")
             return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
         if self.order == 3 and round(wl,0) == 399:
             return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
