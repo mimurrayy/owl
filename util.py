@@ -133,7 +133,7 @@ def running_mean(x, N):
 
 def fft_clean(y, cutoff):
     Hn = np.fft.rfft(y)
-    Hn[N:] = 0
+    Hn[cutoff:] = 0
     return np.fft.irfft(Hn)
 
 def fft_smooth(y, smoothness):
