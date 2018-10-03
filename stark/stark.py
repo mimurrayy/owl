@@ -22,6 +22,7 @@ class stark():
                     # Gigosos et al., 2003: Computer simulated Balmer-alpha,
                     # -beta and -gamma Stark line profiles for non-equilibrium
                     # plasmas diagnostics
+                    ne = ne*1e20
                     w = ((ne/1e23)**(0.67965)) * 1.098
                     return lorentz_function(x,middle_wl,w)
                 else:
@@ -36,6 +37,7 @@ class stark():
                     # Gigosos et al., 2003: Computer simulated Balmer-alpha,
                     # -beta and -gamma Stark line profiles for non-equilibrium
                     # plasmas diagnostics
+                    ne = ne*1e20
                     w = ((ne/1e23)**(0.68116)) * 4.8
                     return lorentz_function(x,xc,w)
                 else:
