@@ -5,12 +5,14 @@ from ..util import *
 from .base_spectrometer import *
 
 class triax(base_spectrometer):
-    def __init__(self, cw, order=1, grating_constant=50, camera="princeton"):
+    def __init__(self, cw, order=1, grating_constant=50,
+            camera="princeton", size=977):
+
         self.cw = cw
         self.order = order
         self.grating_constant = grating_constant
         self.camera = camera.lower()
-        self.x = self.make_x_scale(cw,order,1024)
+        self.x = self.make_x_scale(cw,order,size)
         self.fine_x = self.make_x_scale(cw,order,64*1024)
 
 
