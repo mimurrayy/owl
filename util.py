@@ -18,6 +18,7 @@ __all__ = [
     "get_spectroscopic_name",
     "parse_spectroscopic_name",
     "running_mean",
+    "downsample",
     "fft_clean",
     "lorentz_function","lorentz",
     "psd_voigt_function","psd_voigt",
@@ -130,6 +131,10 @@ def parse_spectroscopic_name(name):
 def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0))
     return (cumsum[N:] - cumsum[:-N]) / float(N)
+
+def downsample(y, N):
+    end =  N * int(len(y)/N)
+    return np.mean(y[:end].reshape(-1, N), 1)
 
 def fft_clean(y, cutoff):
     Hn = np.fft.rfft(y)
