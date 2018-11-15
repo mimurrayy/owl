@@ -78,9 +78,20 @@ class spectrum():
         return lines
 
 
-    def get_spectrum(self,x):
-        """ stub """
+    def get_spectrum(self,x=None, width=0.02):
+        """ Return simulated spectrum. Lines are Gaussian with
+        the set width (FWHM) in nm  """
+        try:
+            if not x:
+                x = self.spectrometer.x
+        except:
+            x = x
         lines = self.get_linedata()
         lines = list(filter(lambda k: k['wl']>self.wl_range[0], lines))
         lines = list(filter(lambda k: k['wl']<self.wl_range[-1], lines))
-        return None
+        spectrum = np.zeros(len(x))
+        for line in lines:
+            profile = line['rel_int']*gauss_function(x, line['wl'], width)
+            spectrum = spectrum + profile
+
+        return spectrum
