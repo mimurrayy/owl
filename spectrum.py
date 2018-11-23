@@ -43,6 +43,7 @@ class spectrum():
                         emission_line['wl'] = float(array[1])
 
                         substring = array[3].replace(" ","")
+                        substring = array[3].replace("q","") # important for Cr
                         if len(substring) > 0:
                             # Col sometimes contain strings, so...
                             try:
