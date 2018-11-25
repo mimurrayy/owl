@@ -47,9 +47,12 @@ class triax(base_spectrometer):
 
     def get_instrumental_params(self, transition):
         "Database for instrumental functions for lines."
-        if self.order == 1 and self.grating_constant == 50:
-            return (2.48216407e+00, 3.63312977e-01)
-
+        if self.camera == "princeton":
+            if self.order == 1 and self.grating_constant == 50:
+                return (2.48216407e+00, 3.63312977e-01)
+        if self.camera == "andor":
+            if self.order == 1 and self.grating_constant == 50:
+                return (1.74871, 0.41544)
 
     # alias
     instr = instrument_function
