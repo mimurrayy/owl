@@ -124,7 +124,7 @@ def get_spectroscopic_name(element, charge):
 def parse_spectroscopic_name(name):
     roman = ["I","II","III","IV","V","VI"][::-1]
     for i,num in enumerate(roman):
-        if num in name:
+        if num in name[-2:]:
             name = name.replace(num, "").strip()
             return name.title(),(len(roman)-i-1)
 
