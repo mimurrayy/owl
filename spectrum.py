@@ -88,6 +88,9 @@ class spectrum():
             lines = self.load_nist_lines(self.particles)
 
         lines = sorted(lines, key=lambda k: k['wl'])
+        if self.wl_range:
+            lines = list(filter(lambda k: k['wl']>self.wl_range[0], lines))
+            lines = list(filter(lambda k: k['wl']<self.wl_range[-1], lines))
 
         return lines
 
