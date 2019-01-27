@@ -20,7 +20,7 @@ class griem():
 
 
     def width(self,ne,Te,A,we):
-        """ Te in K, ne in m^-3
+        """ Te in eV, ne in m^-3
         we, de in Angstrom @ 1e22/m^3 density
         Returns w in nm
         """
@@ -39,7 +39,7 @@ class griem():
 
 
     def shift(self,ne,Te,A,we,de):
-        """ Te in K, ne in m^-3
+        """ Te in eV, ne in m^-3
         we, de in Angstrom @ 1e22/m^3 density """
 
         # we need Te in K

@@ -22,7 +22,7 @@ class triax(base_spectrometer):
         Only works for the 50 line/cm grating for now."""
 
         if self.camera == "princeton":
-            c0 = 5.78
+            c0 = 0#5.78
             c1 = 0.688
             x = np.linspace(0,size-1,size)
             x = c0 + cw + (-size/2 + x) * c1

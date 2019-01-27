@@ -57,7 +57,7 @@ class emission_line():
         except:
             x = x
 
-        middle_wl = x[int(len(x)/2)]
+        middle_wl = x[int(len(x)/2)] - 0.5*abs((x[-1]-x[0])/(len(x)-1))
         # We let the instrumental profile determine center position.
         # ALL other components are shifted to the middle!
         instrumental_profile = self.spectrometer.instrument_function(x, wl, self.transition)
