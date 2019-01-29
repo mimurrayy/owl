@@ -6,7 +6,7 @@ from .base_spectrometer import *
 
 class triax(base_spectrometer):
     def __init__(self, cw, order=1, grating_constant=50,
-            camera="princeton", size=977):
+            camera="princeton", size=1024):
 
         self.cw = cw
         self.order = order
@@ -16,14 +16,14 @@ class triax(base_spectrometer):
         self.fine_x = self.make_x_scale(cw,order,64*1024)
 
 
-    def make_x_scale(self, cw=None, order=1, size=977):
+    def make_x_scale(self, cw=None, order=1, size=1024):
         """Calculates the wavelength scale. Can use bigger sizes to
         create a better resolution for the plots of the results.
         Only works for the 50 line/cm grating for now."""
 
         if self.camera == "princeton":
-            c0 = 0#5.78
-            c1 = 0.688
+            c0 = 5.78*1024/size #5.78
+            c1 = 0.688*1024/size
             x = np.linspace(0,size-1,size)
             x = c0 + cw + (-size/2 + x) * c1
             return x
