@@ -127,6 +127,8 @@ def parse_spectroscopic_name(name):
         if num in name[-2:]:
             name = name.replace(num, "").strip()
             return name.title(),(len(roman)-i-1)
+    # if no roman number in name
+    return name.title(),0
 
 def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0))

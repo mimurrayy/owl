@@ -7,16 +7,15 @@ from ..util import *
 class particle():
     def __init__(self, element, charge=0):
         self.T = None
-        if len(element) > 2:
-            self.element,self.charge = parse_spectroscopic_name(element)
-        else:
-            self.element = element.title()
-            self.charge = charge  
+        self.element,self.charge = parse_spectroscopic_name(element)
+
+        self.name = self.element
 
         mass = {'H'  :   1.00794,
                 'C'  :  12.011,
                 'N'  :  14.0067,
                 'O'  :  15.999,
+                'H2O':  18.015,
                 'Al' :  26.981539,
                 'Ar' :  39.948,
                 'Ti' :  47.867,
@@ -28,7 +27,6 @@ class particle():
                 'Ta' : 180.94788,
                 'W'  : 183.84,
                 }
-
 
         E_ion = {'H'  : 13.59844,
                  'C'  : 11.26030,
@@ -46,9 +44,11 @@ class particle():
                  'W'  :  7.8640,
                  }
 
-
         self.m = mass[self.element]
-        self.Ei = E_ion[self.element]
+        try:
+            self.Ei = E_ion[self.element]
+        except:
+            print("Ionization energy unknown.")
 
     def spectroscopic_name(self):
         return get_spectroscopic_name(self.element, self.charge)

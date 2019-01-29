@@ -9,17 +9,17 @@ class gigosos_loader():
     def __init__(self, transition):
         self.transition = transition
 
-    def load(self, ne, Te, perp):
+    def load(self, ne, Te, pert):
         r0 = (3/(4 * np.pi * ne))**(1/3)
         rD = ((const.epsilon_0 * const.eV * Te)/(ne * const.e**2))**(1/2)
         rho = r0/rD
-
-        if perp:
-            emitter_m = self.transition.particle.m
-            reduced_m = (emitter_m * perp.m)/(emitter_m + perp.m)
-            mu = reduced_m * Te/perp.T
-        else:
-            mu = 1
+        mu = 1
+        #if pert:
+        #    emitter_m = self.transition.particle.m
+        #    reduced_m = (emitter_m * pert.m)/(emitter_m + pert.m)
+        #    mu = reduced_m * Te/pert.T
+        #else:
+        #    mu = 1
 
         return self.load_stark_profile(ne, mu, rho)
 

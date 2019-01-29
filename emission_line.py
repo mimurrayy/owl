@@ -6,12 +6,13 @@ from scipy import interpolate
 #from . import emitter
 from .util import *
 from . import stark
+from . import vdW
 
 class emission_line():
     def __init__(self, spectrometer, transition, wl,
     T = None, Eb = None, gamma = None, B = None, ne = None, Te = None,
-    side=False, P = None):
-        """ T in K, Eb,Te in eV, ne in m^-3"""
+    side=False, N = None, pert = None):
+        """ T in K, Eb,Te in eV, ne in m^-3, N in m^-3"""
         self.wl = wl
         self.transition = transition
         particle = transition.particle
@@ -22,15 +23,16 @@ class emission_line():
         self.gamma = gamma
         self.B  = B
         self.ne = ne
-        self.P  = P
+        self.N  = N
+        self.pert = pert
         self.spectrometer = spectrometer
         self.side = side # symmetric version of Thompson?
         self.last_profiles = []
 
 
     def get_profile(self, x, A,
-            wl=None, T = None, Eb = None, gamma = None, B = None, P = None,
-            ne = None, Te = None, ion = None):
+            shift = False, wl=None, T = None, Eb = None, gamma = None, B = None,
+            N = None, ne = None, Te = None, pert = None):
 
         if wl == None and self.wl:
             wl = self.wl
@@ -44,11 +46,15 @@ class emission_line():
             B = self.B
         if ne == None and self.ne:
             ne = self.ne
-        if P == None and self.P:
-            P = self.P
+        if N == None and self.N:
+            N = self.N
+        if pert == None and self.pert:
+            pert = self.pert
+
         self.last_profiles = []
         resolution = abs((x[-1]-x[0])/(len(x)-1))
         orig_x = x
+        s = 0 # lineshift in nm
         try:
             x = self.spectrometer.fine_x
             if len(orig_x)<1024:
@@ -58,10 +64,6 @@ class emission_line():
             x = x
 
         middle_wl = x[int(len(x)/2)] - 0.5*abs((x[-1]-x[0])/(len(x)-1))
-        # We let the instrumental profile determine center position.
-        # ALL other components are shifted to the middle!
-        instrumental_profile = self.spectrometer.instrument_function(x, wl, self.transition)
-        instrumental_profile = instrumental_profile/resolution/1024
         components = []
 
         if T:
@@ -88,14 +90,23 @@ class emission_line():
             components.append(zeeman_pattern)
         if ne:
             this_stark = stark.stark(self.transition)
-            stark_profile = this_stark.get_profile(x, ne, Te, ion)
+            stark_profile = this_stark.get_profile(x, ne, Te, pert)
             self.last_profiles.append(stark_profile)
             components.append(stark_profile)
+        if N:
+            this_vdW = vdW.vdW(self.transition, pert=pert)
+            vdW_profile = this_vdW.get_profile(x, T, N)
+            self.last_profiles.append(vdW_profile)
+            components.append(vdW_profile)
+            if shift:
+                s = s + this_vdW.get_shift(x, T, N)
 
-        if P:
-            print("TODO")
-
+        # We let the instrumental profile determine center position.
+        # ALL other components are shifted to the middle!
+        instrumental_profile = self.spectrometer.instrument_function(x, wl+s, self.transition)
+        instrumental_profile = instrumental_profile/resolution/1024
         profile = instrumental_profile
+
         for component in components:
             profile = convolve(profile, component, mode='same') * resolution
         y = A*profile

@@ -6,12 +6,12 @@ from .gigosos_loader import *
 from .griem import *
 
 class stark():
-    def __init__(self, transition, ion_perp = None):
+    def __init__(self, transition, ion_pert = None):
         self.transition = transition
         self.fast = False
-        self.perp = ion_perp
+        self.pert = ion_pert
 
-    def get_profile(self,x, ne, Te=None, perp=None):
+    def get_profile(self,x, ne, Te=None, pert=None):
         middle_wl = x[int(len(x)/2)]
 
         ################ Hydrogen #############################################
@@ -26,7 +26,7 @@ class stark():
                     return lorentz_function(x,middle_wl,w)
                 else:
                     this_loader = gigosos_loader(self.transition)
-                    gigosos_x,y = this_loader.load(ne, Te, perp)
+                    gigosos_x,y = this_loader.load(ne, Te, pert)
                     gigosos_x = gigosos_x + middle_wl # to nm
                     y = interpol(gigosos_x,y,x)
                     return y
@@ -40,7 +40,7 @@ class stark():
                     return lorentz_function(x,xc,w)
                 else:
                     this_loader = gigosos_loader(self.transition)
-                    gigosos_x,y = this_loader.load(ne, Te, perp)
+                    gigosos_x,y = this_loader.load(ne, Te, pert)
                     gigosos_x = gigosos_x + middle_wl # to nm
                     y = interpol(gigosos_x,y,x)
                     return y
@@ -55,7 +55,7 @@ class stark():
                 return lorentz_function(x,middle_wl,w)
 
 
-    def get_width(self, ne, Te=None, perp=None):
+    def get_width(self, ne, Te=None, pert=None):
         ################ Oxygen ###############################################
 
         if self.transition.element == "O":
@@ -65,7 +65,7 @@ class stark():
                 # shift is ignored for now
                 return w
 
-    def get_shift(self, ne, Te=None, perp=None):
+    def get_shift(self, ne, Te=None, pert=None):
         ################ Oxygen ###############################################
 
         if self.transition.element == "O":
