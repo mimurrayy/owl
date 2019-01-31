@@ -52,7 +52,6 @@ class emission_line():
             pert = self.pert
 
         self.last_profiles = []
-        resolution = abs((x[-1]-x[0])/(len(x)-1))
         orig_x = x
         s = 0 # lineshift in nm
         try:
@@ -62,6 +61,8 @@ class emission_line():
                 x = x[x<orig_x[-1]]
         except:
             x = x
+
+        resolution = abs((x[-1]-x[0])/(len(x)-1))
 
         middle_wl = x[int(len(x)/2)] - 0.5*abs((x[-1]-x[0])/(len(x)-1))
         components = []
