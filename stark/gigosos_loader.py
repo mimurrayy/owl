@@ -19,7 +19,6 @@ class gigosos_loader():
            mu = reduced_m * Te/pert.T
         else:
            mu = 1
-        print(mu)
 
         return self.load_stark_profile(ne, mu, rho)
 
