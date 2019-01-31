@@ -2,9 +2,9 @@
 
 import numpy as np
 from ..util import *
-from .base_spectrometer import *
+from .basic import *
 
-class triax(base_spectrometer):
+class triax(basic):
     def __init__(self, cw, order=1, grating_constant=50,
             camera="princeton", size=1024):
 

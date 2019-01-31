@@ -2,9 +2,9 @@
 
 import numpy as np
 from ..util import *
-from .base_spectrometer import *
+from .basic import *
 
-class avantes(base_spectrometer):
+class avantes(basic):
     def __init__(self):
         self.x = None
         # self.fine_x = self.make_x_scale(cw,order,64*1024)
