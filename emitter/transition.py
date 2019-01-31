@@ -18,10 +18,10 @@ class transition():
         self.upperl = None # l quantum number
         self.lowerl = None
 
-        try:
-            self.nist_info()
-        except:
-            print("No NIST Databse available.")
+        #try:
+        self.nist_info()
+        #except:
+          #  print("No NIST Databse available.")
 
     def l_name_to_num(self, name):
         chars = ["s","p","d","f","g","h","i","j"]
@@ -42,7 +42,7 @@ class transition():
         lowconf_col = 7
         upconf_col = 10
         for line in open(lines_file, 'r').readlines():
-            if "Unc." in line: # some NIST files contain WL uncertainties.
+            if "Unc." in line and int_col == 3: # some NIST files contain WL uncertainties.
                 int_col = int_col + 2
                 aik_col = aik_col + 2
                 E_col = E_col + 2
@@ -54,8 +54,13 @@ class transition():
                 if len(array[wl_col]) > 3:
                     observed_wl = float(array[wl_col])
                     if self.wl == round(observed_wl, 3):
-                        self.upperE = float(array[E_col].split("-")[1])
-                        self.lowerE = float(array[E_col].split("-")[0])
+                        this_col = array[E_col]
+                        this_col = this_col.replace("[","")
+                        this_col = this_col.replace("]","")
+                        this_col = this_col.replace("(","")
+                        this_col = this_col.replace(")","")
+                        self.upperE = float(this_col.split("-")[1])
+                        self.lowerE = float(this_col.split("-")[0])
                         upper_conf = array[upconf_col]
                         lower_conf = array[lowconf_col]
                         self.upperl = self.l_name_to_num(upper_conf.split('.')[-1][1])
@@ -66,14 +71,18 @@ class transition():
                 line = line.replace(" ", "")
                 array = line.split("|")
                 self.upperJ = float(eval(array[2]))
-                self.upperG = float(array[4])
+                try:
+                    self.upperG = float(array[4])
+                except:
+                    print("No Lande-g in NIST DB")
             if str(self.lowerE) in line:
                 line = line.replace(" ", "")
                 array = line.split("|")
                 self.lowerJ = float(eval(array[2]))
-                self.lowerG = float(array[4])
-
-
+                try:
+                    self.lowerG = float(array[4])
+                except:
+                    print("No Lande-g in NIST DB")
 
 def load_nist_lines(self, particle):
         emission_lines = []
