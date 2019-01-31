@@ -3,6 +3,7 @@
 import numpy as np
 from ..util import *
 from .gigosos_loader import *
+from .gigosos_he_loader import *
 from .griem import *
 
 class stark():
@@ -44,6 +45,21 @@ class stark():
                     gigosos_x = gigosos_x + middle_wl # to nm
                     y = interpol(gigosos_x,y,x)
                     return y
+
+        if self.transition.element == "He":
+            if round(self.transition.wl,0) == 447:
+                this_loader = gigosos_he_loader(self.transition)
+                gigosos_x,y = this_loader.load(ne, Te, pert)
+                gigosos_x = gigosos_x + middle_wl # to nm
+                y = interpol(gigosos_x,y,x)
+                return y
+
+            if round(self.transition.wl, 0) == 492:
+                this_loader = gigosos_he_loader(self.transition)
+                gigosos_x,y = this_loader.load(ne, Te, pert)
+                gigosos_x = gigosos_x + middle_wl # to nm
+                y = interpol(gigosos_x,y,x)
+                return y
 
         ################ Oxygen ###############################################
 
