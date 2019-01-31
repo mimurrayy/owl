@@ -18,10 +18,10 @@ class transition():
         self.upperl = None # l quantum number
         self.lowerl = None
 
-        #try:
-        self.nist_info()
-        #except:
-          #  print("No NIST Databse available.")
+        try:
+            self.nist_info()
+        except:
+            print("No NIST Databse available.")
 
     def l_name_to_num(self, name):
         chars = ["s","p","d","f","g","h","i","j"]
