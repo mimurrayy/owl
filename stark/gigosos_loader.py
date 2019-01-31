@@ -13,13 +13,13 @@ class gigosos_loader():
         r0 = (3/(4 * np.pi * ne))**(1/3)
         rD = ((const.epsilon_0 * const.eV * Te)/(ne * const.e**2))**(1/2)
         rho = r0/rD
-        mu = 1
-        #if pert:
-        #    emitter_m = self.transition.particle.m
-        #    reduced_m = (emitter_m * pert.m)/(emitter_m + pert.m)
-        #    mu = reduced_m * Te/pert.T
-        #else:
-        #    mu = 1
+        if pert:
+           emitter_m = self.transition.particle.m
+           reduced_m = (emitter_m * pert.m)/(emitter_m + pert.m)
+           mu = reduced_m * Te/pert.T
+        else:
+           mu = 1
+        print(mu)
 
         return self.load_stark_profile(ne, mu, rho)
 
@@ -57,8 +57,8 @@ class gigosos_loader():
 
 
     def closest_mu(self,mu):
-        mu_stock = [0.50, 0.80, 0.90, 1.00, 1.25, 1.5, 1.75, 2.00, 2.50, 3.00,
-            4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.0]
+        mu_stock = np.array([0.50, 0.80, 0.90, 1.00, 1.25, 1.5, 1.75, 2.00,
+            2.50, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 10.0])
         if mu in mu_stock:
             mu_low = mu_high = mu
         elif mu < mu_stock[0]:
