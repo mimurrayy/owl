@@ -103,6 +103,29 @@ class vdW():
                 w = self.get_width(xc,m1,m2,T,n,Eion,*comp[2:],a)
                 y = y + Aik*lorentz_function(x,wl-656.280+middle_wl,w)
 
+
+        if round(self.transition.wl, 0) == 486:
+            H = self.transition.particle
+            #[Aik*gi, wl, Eu, El, lu, ll]
+            components = [
+            [1.7188e+07*4, 486.1278624, 12.74853800, 10.19880606, 2, 1],
+            [2.0625e+07*6, 486.1361516, 12.74853989, 10.19885143, 2, 1],
+            [3.4375e+06*4, 486.1365118, 12.74853800, 10.19885143, 2, 1],
+
+            [9.6680e+06*4, 486.1286949, 12.74853801, 10.19881044, 1, 0],
+            [9.6683e+06*2, 486.1297761, 12.74853234, 10.19881044, 1, 0],
+
+            [8.5941e+05*2, 486.1288370, 12.74853289, 10.19880606, 0, 1],
+            [1.7190e+06*2, 486.1374864, 12.74853289, 10.19885143, 0, 1]]
+
+            y = np.zeros(len(x))
+            for comp in components:
+                Aik = comp[0]
+                wl = comp[1]
+                w = self.get_width(xc,m1,m2,T,n,Eion,*comp[2:],a)
+                y = y + Aik*lorentz_function(x,wl-486.133+middle_wl,w)
+
+
         return y/max(y)
 
     def alpha(self,particle):
