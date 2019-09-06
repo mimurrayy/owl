@@ -54,6 +54,7 @@ class spectrum():
 
                         substring = array[int_col].replace(" ","")
                         substring = substring.replace("q","") # important for Cr
+                        substring = substring.replace("g","") # important for Al
                         if len(substring) > 0:
                             # Col sometimes contain strings, so...
                             try:
