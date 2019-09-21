@@ -17,6 +17,7 @@ class transition():
         self.lowerG = None
         self.upperl = None # l quantum number
         self.lowerl = None
+        self.Aik    = None
 
         try:
             self.nist_info()
@@ -65,6 +66,7 @@ class transition():
                         lower_conf = array[lowconf_col]
                         self.upperl = self.l_name_to_num(upper_conf.split('.')[-1][1])
                         self.lowerl = self.l_name_to_num(lower_conf.split('.')[-1][1])
+                        self.Aik = array[aik_col]
 
         for line in open(levels_file, 'r').readlines():
             if str(self.upperE) in line:
