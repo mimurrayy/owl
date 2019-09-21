@@ -18,11 +18,16 @@ class transition():
         self.upperl = None # l quantum number
         self.lowerl = None
         self.Aik    = None
+        self.upperg = None
+        self.lowerg = None
 
         try:
             self.nist_info()
-        except:
+        except SyntaxError:
+            print("Warning: EOF error. Should be harmless.")
+        except Exception as e:
             print("No NIST Databse available.")
+            print(e)
 
     def l_name_to_num(self, name):
         chars = ["s","p","d","f","g","h","i","j"]
@@ -42,6 +47,7 @@ class transition():
         E_col = 6
         lowconf_col = 7
         upconf_col = 10
+        g_col = 13
         for line in open(lines_file, 'r').readlines():
             if "Unc." in line and int_col == 3: # some NIST files contain WL uncertainties.
                 int_col = int_col + 2
@@ -49,6 +55,7 @@ class transition():
                 E_col = E_col + 2
                 lowconf_col = lowconf_col + 2
                 upconf_col = upconf_col + 2
+                g_col = g_col + 2
             if line.startswith(spec_name):
                 line = line.replace(" ", "")
                 array = line.split("|")
@@ -66,7 +73,10 @@ class transition():
                         lower_conf = array[lowconf_col]
                         self.upperl = self.l_name_to_num(upper_conf.split('.')[-1][1])
                         self.lowerl = self.l_name_to_num(lower_conf.split('.')[-1][1])
-                        self.Aik = array[aik_col]
+                        self.Aik = float(array[aik_col])
+                        this_col = array[g_col]
+                        self.upperg = float(this_col.split("-")[1])
+                        self.lowerg = float(this_col.split("-")[0])
 
         for line in open(levels_file, 'r').readlines():
             if str(self.upperE) in line:
