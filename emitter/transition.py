@@ -20,7 +20,7 @@ class transition():
         self.Aik    = None
         self.upperg = None
         self.lowerg = None
-
+        self.nist_info()
         try:
             self.nist_info()
         except SyntaxError:
@@ -75,13 +75,20 @@ class transition():
                         self.lowerl = self.l_name_to_num(lower_conf.split('.')[-1][1])
                         self.Aik = float(array[aik_col])
                         this_col = array[g_col]
-                        self.upperg = float(this_col.split("-")[1])
-                        self.lowerg = float(this_col.split("-")[0])
+                        try:
+                            self.upperg = float(this_col.split("-")[1])
+                        except:
+                            print("No g in NIST DB")
+                        try:
+                            self.lowerg = float(this_col.split("-")[0])
+                        except:
+                            print("No g in NIST DB")
 
         for line in open(levels_file, 'r').readlines():
             if str(self.upperE) in line:
                 line = line.replace(" ", "")
                 array = line.split("|")
+                print(array)
                 self.upperJ = float(eval(array[2]))
                 try:
                     self.upperG = float(array[4])
