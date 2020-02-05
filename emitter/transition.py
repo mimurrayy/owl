@@ -88,7 +88,6 @@ class transition():
             if str(self.upperE) in line:
                 line = line.replace(" ", "")
                 array = line.split("|")
-                print(array)
                 self.upperJ = float(eval(array[2]))
                 try:
                     self.upperG = float(array[4])
