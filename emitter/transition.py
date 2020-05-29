@@ -23,14 +23,14 @@ class transition():
         self.lowerg = None
         self.upper_level, self.lower_level = self.levels()
         self.upper, self.lower = self.upper_level, self.lower_level
-        # try:
-        self.nist_info(debug=debug)
-        # except SyntaxError:
-        #     if debug:
-        #         print("Warning: EOF error. Should be harmless.")
-        # except Exception as e:
-        #     print("No NIST Databse available.")
-        #     print(e)
+        try:
+            self.nist_info(debug=debug)
+        except SyntaxError:
+            if debug:
+                print("Warning: EOF error. Should be harmless.")
+        except Exception as e:
+            print("No NIST Databse available.")
+            print(e)
 
     def l_name_to_num(self, name):
         chars = ["s","p","d","f","g","h","i","j"]
