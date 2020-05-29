@@ -3,6 +3,7 @@ import numpy as np
 from scipy import constants as const
 from .util import *
 import os
+from .emitter import transition
 
 class spectrum():
     """ Holds information about a complete emission spectrum of the given
@@ -113,3 +114,19 @@ class spectrum():
             spectrum = spectrum + profile
 
         return spectrum
+
+    def get_transitions(self, debug=False):
+        """ Returns transition objects in the wavelength range """
+        transitions = []
+        if isinstance(self.particles,(list,tuple)):
+            for particle in self.particles:
+                for line in self.load_nist_lines(particle):
+                    if line['wl'] > self.wl_range[0] and line['wl'] < self.wl_range[-1]:
+                        this_transition = transition(particle, line['wl'], debug=debug)
+                        transitions.append(this_transition)
+        else:
+            for line in self.load_nist_lines(self.particles):
+                if line['wl'] > self.wl_range[0] and line['wl'] < self.wl_range[-1]:
+                    this_transition = transition(self.particles, line['wl'], debug=debug)
+                    transitions.append(this_transition)
+        return transitions
