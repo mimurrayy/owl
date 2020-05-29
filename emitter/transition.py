@@ -21,8 +21,6 @@ class transition():
         self.Aik    = None
         self.upperg = None
         self.lowerg = None
-        self.upper_level, self.lower_level = self.levels()
-        self.upper, self.lower = self.upper_level, self.lower_level
         try:
             self.nist_info(debug=debug)
         except SyntaxError:
@@ -31,15 +29,17 @@ class transition():
         except Exception as e:
             print("No NIST Databse available.")
             print(e)
+        self.upper_level, self.lower_level = self.levels(debug=debug)
+        self.upper, self.lower = self.upper_level, self.lower_level
 
     def l_name_to_num(self, name):
         chars = ["s","p","d","f","g","h","i","j"]
         num = chars.index(name)
         return num
 
-    def levels(self):
-        upper_level = level(self.particle, self.upperE)
-        lower_level = level(self.particle, self.lowerE)
+    def levels(self, debug=False):
+        upper_level = level(self.particle, self.upperE, debug=debug)
+        lower_level = level(self.particle, self.lowerE, debug=debug)
         self.upperJ = upper_level.J
         self.upperG = upper_level.G
         self.lowerJ = lower_level.J
