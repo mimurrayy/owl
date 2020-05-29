@@ -2,6 +2,7 @@
 
 import os
 from ..util import *
+from . import level
 
 class transition():
     def __init__(self, particle, transition_wavelength):
@@ -21,6 +22,8 @@ class transition():
         self.upperg = None
         self.lowerg = None
         self.nist_info()
+        self.upper_level, self.lower_level = self.levels()
+        self.upper, self.lower = self.upper_level, self.lower_level
         try:
             self.nist_info()
         except SyntaxError:
@@ -34,11 +37,19 @@ class transition():
         num = chars.index(name)
         return num
 
+    def levels(self):
+        upper_level = level(self.particle, self.upperE)
+        lower_level = level(self.particle, self.lowerE)
+        self.upperJ = upper_level.J
+        self.upperG = upper_level.G
+        self.lowerJ = lower_level.J
+        self.lowerG = lower_level.G
+        return upper_level, lower_level
+
     def nist_info(self):
         "Load NIST Tables and set E,J and G"
         folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "nist-db")
         lines_file = os.path.join(folder, (self.element.lower() + "-lines.txt"))
-        levels_file = os.path.join(folder, (self.element.lower() + str(self.charge+1) + "-levels.txt"))
         spec_name = get_spectroscopic_name(self.element, self.charge)
         name_col = 0
         wl_col = 1
@@ -87,23 +98,6 @@ class transition():
                         except:
                             print("No g in NIST DB")
 
-        for line in open(levels_file, 'r').readlines():
-            if str(self.upperE) in line:
-                line = line.replace(" ", "")
-                array = line.split("|")
-                self.upperJ = float(eval(array[2]))
-                try:
-                    self.upperG = float(array[4])
-                except:
-                    print("No Lande-g in NIST DB")
-            if str(self.lowerE) in line:
-                line = line.replace(" ", "")
-                array = line.split("|")
-                self.lowerJ = float(eval(array[2]))
-                try:
-                    self.lowerG = float(array[4])
-                except:
-                    print("No Lande-g in NIST DB")
 
 def load_nist_lines(self, particle):
         emission_lines = []
