@@ -73,7 +73,10 @@ class transition():
                         lower_conf = array[lowconf_col]
                         self.upperl = self.l_name_to_num(upper_conf.split('.')[-1][1])
                         self.lowerl = self.l_name_to_num(lower_conf.split('.')[-1][1])
-                        self.Aik = float(array[aik_col])
+                        try:
+                            self.Aik = float(array[aik_col])
+                        except:
+                            print("No Aik in NIST DB")
                         this_col = array[g_col]
                         try:
                             self.upperg = float(this_col.split("-")[1])
