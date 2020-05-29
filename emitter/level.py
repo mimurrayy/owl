@@ -77,13 +77,19 @@ class level():
                 lowerE = this_col.split("-")[0]
 
                 if (str(self.E) in upperE) and (kind=="all" or kind=="from"):
-                    observed_wl = float(array[wl_col])
+                    try:
+                        observed_wl = float(array[wl_col])
+                    except:
+                        observed_wl = float(array[wl_col+1]) # use calc WL : (
                     wl = round(observed_wl, 3)
                     this_transition = transition(self.particle, wl, debug=debug)
                     transitions.append(this_transition)
 
                 if (str(self.E) in lowerE) and (kind=="all" or kind=="to"):
-                    observed_wl = float(array[wl_col])
+                    try:
+                        observed_wl = float(array[wl_col])
+                    except:
+                        observed_wl = float(array[wl_col+1]) # use calc WL : (
                     wl = round(observed_wl, 3)
                     this_transition = transition(self.particle, wl, debug=debug)
                     transitions.append(this_transition)
