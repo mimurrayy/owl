@@ -3,6 +3,7 @@
 import os
 from ..util import *
 from . import transition
+import numpy as np
 
 class level():
     def __init__(self, particle, energy, debug=False):
@@ -90,4 +91,10 @@ class level():
         return transitions
 
 
-
+    def get_lifetime(self, debug=False):
+        Aiks = []
+        for transition in self.get_transitions(kind="from", debug=debug):
+            if transition.Aik:
+                Aiks.append(transition.Aik)
+        sum_Aik = np.sum(Aiks)
+        return 1/sum_Aik
