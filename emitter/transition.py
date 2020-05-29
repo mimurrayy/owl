@@ -5,7 +5,7 @@ from ..util import *
 from . import level
 
 class transition():
-    def __init__(self, particle, transition_wavelength):
+    def __init__(self, particle, transition_wavelength, debug=False):
         self.particle = particle
         self.element = particle.element
         self.charge = particle.charge
@@ -21,13 +21,13 @@ class transition():
         self.Aik    = None
         self.upperg = None
         self.lowerg = None
-        self.nist_info()
         self.upper_level, self.lower_level = self.levels()
         self.upper, self.lower = self.upper_level, self.lower_level
         try:
-            self.nist_info()
+            self.nist_info(debug=debug)
         except SyntaxError:
-            print("Warning: EOF error. Should be harmless.")
+            if debug:
+                print("Warning: EOF error. Should be harmless.")
         except Exception as e:
             print("No NIST Databse available.")
             print(e)
@@ -46,7 +46,7 @@ class transition():
         self.lowerG = lower_level.G
         return upper_level, lower_level
 
-    def nist_info(self):
+    def nist_info(self, debug=False):
         "Load NIST Tables and set E,J and G"
         folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "nist-db")
         lines_file = os.path.join(folder, (self.element.lower() + "-lines.txt"))
@@ -87,16 +87,19 @@ class transition():
                         try:
                             self.Aik = float(array[aik_col])
                         except:
-                            print("No Aik in NIST DB")
+                            if debug:
+                                print("No Aik in NIST DB")
                         this_col = array[g_col]
                         try:
                             self.upperg = float(this_col.split("-")[1])
                         except:
-                            print("No g in NIST DB")
+                            if debug:
+                                print("No g in NIST DB")
                         try:
                             self.lowerg = float(this_col.split("-")[0])
                         except:
-                            print("No g in NIST DB")
+                            if debug:
+                                print("No g in NIST DB")
 
 
 def load_nist_lines(self, particle):

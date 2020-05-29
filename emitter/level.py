@@ -5,7 +5,7 @@ from ..util import *
 from . import transition
 
 class level():
-    def __init__(self, particle, energy):
+    def __init__(self, particle, energy, debug=False):
         self.particle = particle
         self.element = particle.element
         self.charge = particle.charge
@@ -15,9 +15,8 @@ class level():
         self.l = None # l quantum number
         self.g = None # statistical weight
         self.conf = None # configuration and term string
-        self.nist_info()
         try:
-            self.nist_info()
+            self.nist_info(debug=debug)
         except SyntaxError:
             print("Warning: EOF error. Should be harmless.")
         except Exception as e:
@@ -29,7 +28,7 @@ class level():
         num = chars.index(name)
         return num
 
-    def nist_info(self):
+    def nist_info(self, debug=False):
         "Load NIST Tables and set J,G and conf"
         folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "nist-db")
         levels_file = os.path.join(folder, (self.element.lower() + str(self.charge+1) + "-levels.txt"))
@@ -46,9 +45,10 @@ class level():
                 try:
                     self.G = float(array[4])
                 except:
-                    print("No Lande-g in NIST DB")
+                    if debug:
+                        print("No Lande-g in NIST DB")
 
-    def get_transitions(self, kind="all"):
+    def get_transitions(self, kind="all", debug=False):
         """Return the transition objects that belong to the energy level
         Type is a string and may be "from", "to" or "all", to select transitions
         from the level, to the level or both."""
@@ -78,15 +78,16 @@ class level():
                 if (str(self.E) in upperE) and (kind=="all" or kind=="from"):
                     observed_wl = float(array[wl_col])
                     wl = round(observed_wl, 3)
-                    this_transition = transition(self.particle, wl)
+                    this_transition = transition(self.particle, wl, debug=debug)
                     transitions.append(this_transition)
 
                 if (str(self.E) in lowerE) and (kind=="all" or kind=="to"):
                     observed_wl = float(array[wl_col])
                     wl = round(observed_wl, 3)
-                    this_transition = transition(self.particle, wl)
+                    this_transition = transition(self.particle, wl, debug=debug)
                     transitions.append(this_transition)
 
         return transitions
+
 
 
