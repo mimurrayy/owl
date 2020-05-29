@@ -23,14 +23,14 @@ class transition():
         self.lowerg = None
         self.upper_level, self.lower_level = self.levels()
         self.upper, self.lower = self.upper_level, self.lower_level
-        try:
-            self.nist_info(debug=debug)
-        except SyntaxError:
-            if debug:
-                print("Warning: EOF error. Should be harmless.")
-        except Exception as e:
-            print("No NIST Databse available.")
-            print(e)
+        # try:
+        self.nist_info(debug=debug)
+        # except SyntaxError:
+        #     if debug:
+        #         print("Warning: EOF error. Should be harmless.")
+        # except Exception as e:
+        #     print("No NIST Databse available.")
+        #     print(e)
 
     def l_name_to_num(self, name):
         chars = ["s","p","d","f","g","h","i","j"]
@@ -81,9 +81,17 @@ class transition():
                         self.upperE = float(this_col.split("-")[1])
                         self.lowerE = float(this_col.split("-")[0])
                         upper_conf = array[upconf_col]
+                        upper_conf_parts = upper_conf.split('.')
+                        if "(" in upper_conf_parts[-1]:
+                            upper_conf_parts.pop()
+
                         lower_conf = array[lowconf_col]
-                        self.upperl = self.l_name_to_num(upper_conf.split('.')[-1][1])
-                        self.lowerl = self.l_name_to_num(lower_conf.split('.')[-1][1])
+                        lower_conf_parts = lower_conf.split('.')
+                        if "(" in lower_conf_parts[-1]:
+                            lower_conf_parts.pop()
+
+                        self.upperl = self.l_name_to_num(upper_conf_parts[-1][1])
+                        self.lowerl = self.l_name_to_num(lower_conf_parts[-1][1])
                         try:
                             self.Aik = float(array[aik_col])
                         except:
