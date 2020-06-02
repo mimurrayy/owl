@@ -2,7 +2,6 @@
 
 import os
 from ..util import *
-from . import transition
 import numpy as np
 
 class level():
@@ -53,6 +52,8 @@ class level():
         """Return the transition objects that belong to the energy level
         Type is a string and may be "from", "to" or "all", to select transitions
         from the level, to the level or both."""
+        from .transition import transition # needed to avoid circular import
+
         folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "nist-db")
         lines_file = os.path.join(folder, (self.element.lower() + "-lines.txt"))
         spec_name = get_spectroscopic_name(self.element, self.charge)

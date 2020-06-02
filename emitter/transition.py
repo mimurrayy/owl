@@ -2,7 +2,7 @@
 
 import os
 from ..util import *
-from . import level
+from .level import *
 
 class transition():
     def __init__(self, particle, transition_wavelength, debug=False):
