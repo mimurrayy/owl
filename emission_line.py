@@ -30,7 +30,7 @@ class emission_line():
         self.last_profiles = []
 
 
-    def get_profile(self, x, A,
+    def get_profile(self, x, A = 1,
             shift = False, wl=None, T = None, Eb = None, gamma = None, B = None,
             N = None, ne = None, Te = None, pert = None):
 
@@ -114,7 +114,9 @@ class emission_line():
         self.last_profiles.append(y)
         lowres_y = interpol(x, y, orig_x)
         self.last_profiles.append(lowres_y)
-        return lowres_y
+        # normalize intensity to A
+        y = A*lowres_y/np.sum(lowres_y)/resolution
+        return y
 
 
     def get_instrumental_profile(self, x, wl=None):
