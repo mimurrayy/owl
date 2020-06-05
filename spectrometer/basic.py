@@ -17,8 +17,9 @@ class basic():
 
 
     def instrument_function(self, x, xc, transition=None, params = None, w = None):
+        dx = np.abs(x[1] - x[0])
         if not w and not self.w:
-            w = 0.001
+            w = dx
         elif self.w:
             w = self.w
         y = gauss_function(x,xc,w)
