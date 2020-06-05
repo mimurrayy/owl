@@ -100,7 +100,7 @@ class emission_line():
             self.last_profiles.append(vdW_profile)
             components.append(vdW_profile)
             if shift:
-                s = s + this_vdW.get_shift(x, T, N)
+                s = s + this_vdW.get_shift(x, N, T)
 
         # We let the instrumental profile determine center position.
         # ALL other components are shifted to the middle!

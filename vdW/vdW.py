@@ -19,6 +19,19 @@ class vdW():
         if self.transition.particle.element == "H":
             return self.hydrogen_profile(x,T,n)
 
+        w = self.get_width(self.transition, n, T)
+        y = lorentz_function(x,middle_wl,w)
+
+        return y/max(y)
+
+
+    def get_width(self, transition, n, T):
+        """
+        Energies in eV, alpha in m^2,
+        lambda in nm, n in m^-3, T in K, m in amu.
+        From: N. Konjevic & / Physics Reports 316 (1999) 339}401
+        """
+
         xc = self.transition.wl
         m1 = self.transition.particle.m
         m2 = self.pert.m
@@ -27,20 +40,8 @@ class vdW():
         El = self.transition.lowerE
         lu = self.transition.upperl
         ll = self.transition.lowerl
-        a = self.alpha(self.pert)
+        alpha = self.alpha(self.pert)
 
-        w = self.get_width(xc,m1,m2,T,n,Eion,Eu,El,lu,ll,a)
-        y = lorentz_function(x,middle_wl,w)
-
-        return y/max(y)
-
-
-    def get_width(self,xc,m1,m2,T,n,Eion,Eu,El,lu,ll,alpha):
-        """
-        Energies in eV, alpha in m^2,
-        lambda in nm, n in m^-3, T in K, m in amu.
-        From: N. Konjevic & / Physics Reports 316 (1999) 339}401
-        """
         mu = m1*m2/(m1+m2)
 
         ### upper
@@ -61,17 +62,7 @@ class vdW():
 
 
     def get_shift(self,x, T, n):
-        xc = self.transition.wl
-        m1 = self.transition.particle.m
-        m2 = self.pert.m
-        Eion = self.transition.particle.Ei
-        Eu = self.transition.upperE
-        El = self.transition.lowerE
-        lu = self.transition.upperl
-        ll = self.transition.lowerl
-        a = self.alpha(self.pert)
-
-        w = self.get_width(xc,m1,m2,T,n,Eion,Eu,El,lu,ll,a)
+        w = self.get_width(self.transition, n, T)
         s = w*0.28 # citation needed
         return s
 
