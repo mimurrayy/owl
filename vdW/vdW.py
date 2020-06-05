@@ -61,7 +61,7 @@ class vdW():
         return w*1e7 # to nm
 
 
-    def get_shift(self,x, T, n):
+    def get_shift(self,x, n, T):
         w = self.get_width(self.transition, n, T)
         s = w*0.28 # citation needed
         return s
