@@ -12,7 +12,9 @@ class vdW():
     def get_profile(self,x, T, n):
         middle_wl = x[int(len(x)/2)] - 0.5*abs((x[-1]-x[0])/(len(x)-1))
         if not T:
-            print("Need to provide a gas temperture (in Kelvin).")
+            print("""Need to provide a gas temperture (in Kelvin).
+            Assuming 300 K""")
+            T = 300
 
         if self.transition.particle.element == "H":
             return self.hydrogen_profile(x,T,n)
