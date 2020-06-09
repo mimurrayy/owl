@@ -22,7 +22,8 @@ __all__ = [
     "fft_clean",
     "lorentz_function","lorentz",
     "psd_voigt_function","psd_voigt",
-    "fft_smooth"
+    "fft_smooth",
+    "deconv", "deconvolution"
     ]
 
 def interpol(new_x, y, old_x):
@@ -158,8 +159,23 @@ def psd_voigt_function(x, xc, w, mu):
         (1 - mu) * (np.sqrt(4*np.log(2)) / (np.sqrt(np.pi) * w)) *
         np.exp(-(4*np.log(2)/w**2)*(x-xc)**2) )) # pseudo voidt function copied from origin
 
+def deconv(signal, instr, noise_level):
+    """ Remove instrumental profile (or other profile) from measured signal.
+    Wiener deconvolution found somewhere on the internet.
+    Was checked to be correct by forward calculation using convolution.
+    Noise level is 1/SNR with SNR being the signal to noise ratio.
+    In practice, increase noise level until result starts looking smushed.
+    """
+    H = fft.fft(instr)
+    lamb=max(instr)*noise_level
+    deconvolved = fft.ifftshift(fft.ifft(fft.fft(signal)*
+                                         np.conj(H)/(H*np.conj(H) + lamb**2)))
+    return np.roll(np.real(deconvolved), -1)
+
+
 # alias
 lorentz = lorentz_function
 psd_voigt = psd_voigt_function
 gauss = gauss_function
 thompson = thompson_function
+deconvolution = deconv
