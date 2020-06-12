@@ -64,7 +64,7 @@ class emission_line():
 
         resolution = abs((x[-1]-x[0])/(len(x)-1))
 
-        middle_wl = x[int(len(x)/2)] - 0.5*abs((x[-1]-x[0])/(len(x)-1))
+        middle_wl = x[int(len(x)/2)-1]
         components = []
 
         if T:
