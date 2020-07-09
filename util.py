@@ -4,6 +4,7 @@ from scipy.signal import fftconvolve as convolve
 from scipy import constants as const
 from scipy import interpolate
 from scipy.signal import filtfilt
+from numpy import fft
 #from . import transition
 
 __all__ = [
