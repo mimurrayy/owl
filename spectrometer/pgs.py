@@ -50,6 +50,8 @@ class pgs(basic):
             return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
         if self.order == 3 and round(wl,0) == 399:
             return (0.00653, 0.00173, 0.7795, 1.0, 1.0295, 0.005, 0.0115)
+        if self.order == 3 and round(wl,0) == 395:
+            return (0.00810, 0.00349, 0.7094, 0.9947, 0.4724, 0.0074, 0.0082)
         if self.order == 3 and round(wl,0) == 473:
             return (0.00476, 0.00324, 1.1660, 0.6125, 0.9649, 0.0063, 0.0098)
         if round(wl,0) == 633 and self.order == 2:
