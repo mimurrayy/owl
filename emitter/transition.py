@@ -67,7 +67,7 @@ class transition():
                 lowconf_col = lowconf_col + 2
                 upconf_col = upconf_col + 2
                 g_col = g_col + 2
-            if line.startswith(spec_name):
+            if line.split('|')[0].replace(' ','') == spec_name.replace(' ',''):
                 line = line.replace(" ", "")
                 array = line.split("|")
                 if len(array[wl_col]) > 3:
@@ -130,7 +130,7 @@ def load_nist_lines(self, particle):
                 aik_col = aik_col + 2
                 E_col = E_col + 2
 
-            if line.startswith(spec_name):
+            if line.split('|')[0].replace(' ','') == spec_name.replace(' ',''):
                 emission_line = {}
                 emission_line['particle'] = spec_name
                 observed_wl = rel_int = Aik = Ei = Ek = None
@@ -165,3 +165,4 @@ def load_nist_lines(self, particle):
                         emission_lines.append(emission_line)
 
         return emission_lines
+
