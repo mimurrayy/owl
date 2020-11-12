@@ -10,8 +10,14 @@ class griem():
         self.transition = transition
 
     def get_width_shift(self, ne, Te):
-        if self.transition.element == "O":
+        ele = self.transition.element
+        wl = self.transition.wl
+
+        if ele == "O" and round(wl, 0) == 777.:
             A,B,we,de = self.params_O777(Te)
+
+        if ele == "Ar" and (round(wl, 3) == 810.369 or round(wl, 3) == 738.398):
+            A,B,we,de = self.params_Ar8104(Te)
 
         w = self.width(ne,Te,A,we)
         d = self.shift(ne,Te,A,we,de)
@@ -55,9 +61,9 @@ class griem():
 
 
     def params_O777(self,Te):
-        """ Parameter from:
+        """ Parameters fitted from:
          H.R. Griem: Spectral Line Broadening by Plasmas
-         returns A,B and we,de in nm
+         returns A,B and we,de in Angstrom
          All values at ne = 10^16 /cm^3
          """
 
@@ -71,5 +77,24 @@ class griem():
         a0,a1,a2,a3,a4 = [1.39308003e-02,1.88771484e-07,-2.17304732e-11,
         6.29115391e-16,-6.33972112e-21] # very much overdefined...
         de = a0 + a1*T + a2*T**2 + a3*T**3 + a4*T**4
+
+        return A,B,we,de
+
+
+    def params_Ar8104(self,Te):
+        """ Parameters fitted from:
+         H.R. Griem: Spectral Line Broadening by Plasmas
+         returns A,B and we,de in Angstrom
+         All values at ne = 10^16 /cm^3
+         """
+
+        # we need Te in K
+        T = Te * const.eV / const.k
+
+        B = 5.25e-5 * T # recommended by Griem
+        A = 0.3248611802364256 * T**(-0.2795132945865003) # Just fits okay.
+        we = -0.001503172622523098 + 0.002098004523296234 * T**0.358775514451271
+        a0,a1,a2,a3 = [0.056, -6.4e-07, 4e-12, -48] # very much overdefined...
+        de =  a0 + a1*T + a2*T**2 +  a3*T**-1
 
         return A,B,we,de

@@ -12,12 +12,13 @@ class stark():
         self.fast = False
         self.pert = ion_pert
 
+
     def get_profile(self,x, ne, Te=None, pert=None):
         middle_wl = x[int(len(x)/2)]
+        ele = self.transition.element
 
-        ################ Hydrogen #############################################
-
-        if self.transition.element == "H":
+        ################ Hydrogen ########
+        if ele == "H":
             if round(self.transition.wl,0) == 656:
                 if self.fast or not Te:
                     # Gigosos et al., 2003: Computer simulated Balmer-alpha,
@@ -46,7 +47,8 @@ class stark():
                     y = interpol(gigosos_x,y,x)
                     return y
 
-        if self.transition.element == "He":
+        ################ Helium ##########
+        if ele == "He":
             if round(self.transition.wl,0) == 447:
                 this_loader = gigosos_he_loader(self.transition)
                 gigosos_x,y = this_loader.load(ne, Te, pert)
@@ -61,32 +63,26 @@ class stark():
                 y = interpol(gigosos_x,y,x)
                 return y
 
-        ################ Oxygen ###############################################
-
-        if self.transition.element == "O":
-            if round(self.transition.wl,0) == 777:
-                this_griem = griem(self.transition)
-                w,d = this_griem.get_width_shift(ne, Te)
-                # shift is ignored for now
-                return lorentz_function(x,middle_wl,w)
+        ################ Others: Griem ##########
+        if ele == "O" or "Ar":
+            this_griem = griem(self.transition)
+            w,d = this_griem.get_width_shift(ne, Te)
+            # shift is ignored for now
+            return lorentz_function(x,middle_wl,w)
 
 
     def get_width(self, ne, Te=None, pert=None):
-        ################ Oxygen ###############################################
-
-        if self.transition.element == "O":
-            if round(self.transition.wl,0) == 777:
-                this_griem = griem(self.transition)
-                w,d = this_griem.get_width_shift(ne, Te)
-                # shift is ignored for now
-                return w
+        ele = self.transition.element
+        if ele == "O" or ele == "Ar":
+            this_griem = griem(self.transition)
+            w,d = this_griem.get_width_shift(ne, Te)
+            return w
 
     def get_shift(self, ne, Te=None, pert=None):
-        ################ Oxygen ###############################################
+        ele = self.transition.element
+        if ele == "O" or ele == "Ar" :
+            this_griem = griem(self.transition)
+            w,d = this_griem.get_width_shift(ne, Te)
+            return d
 
-        if self.transition.element == "O":
-            if round(self.transition.wl,0) == 777:
-                this_griem = griem(self.transition)
-                w,d = this_griem.get_width_shift(ne, Te)
-                # shift is ignored for now
-                return d
+
