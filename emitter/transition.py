@@ -53,6 +53,7 @@ class transition():
         spec_name = get_spectroscopic_name(self.element, self.charge)
         name_col = 0
         wl_col = 1
+        ritz_col = 2
         int_col = 3
         aik_col = 4
         E_col = 6
@@ -61,6 +62,7 @@ class transition():
         g_col = 13
         for line in open(lines_file, 'r').readlines():
             if "Unc." in line and int_col == 3: # some NIST files contain WL uncertainties.
+                ritz_col = ritz_col + 1
                 int_col = int_col + 2
                 aik_col = aik_col + 2
                 E_col = E_col + 2
@@ -70,9 +72,14 @@ class transition():
             if line.split('|')[0].replace(' ','') == spec_name.replace(' ',''):
                 line = line.replace(" ", "")
                 array = line.split("|")
+                wl = False
                 if len(array[wl_col]) > 3:
-                    observed_wl = float(array[wl_col])
-                    if self.wl == round(observed_wl, 3):
+                    wl = float(array[wl_col])
+                elif len(array[ritz_col]) > 3: # use ritz wl if no observed wl
+                    wl = float(array[ritz_col])
+
+                if wl:
+                    if self.wl == round(wl, 3):
                         this_col = array[E_col]
                         this_col = this_col.replace("[","")
                         this_col = this_col.replace("]","")
@@ -108,6 +115,7 @@ class transition():
                         except:
                             if debug:
                                 print("No g in NIST DB")
+
 
 
 def load_nist_lines(self, particle):
