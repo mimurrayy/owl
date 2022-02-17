@@ -18,7 +18,6 @@ class vdW():
 
         if self.transition.particle.element == "H":
             return self.hydrogen_profile(x,T,n)
-
         w = self.get_width(self.transition, n, T)
         y = lorentz_function(x,middle_wl,w)
 

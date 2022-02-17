@@ -39,7 +39,7 @@ class stark():
                     # -beta and -gamma Stark line profiles for non-equilibrium
                     # plasmas diagnostics
                     w = ((ne/1e23)**(0.68116)) * 4.8
-                    return lorentz_function(x,xc,w)
+                    return lorentz_function(x,middle_wl,w)
                 else:
                     this_loader = gigosos_loader(self.transition)
                     gigosos_x,y = this_loader.load(ne, Te, pert)
