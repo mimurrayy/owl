@@ -26,11 +26,11 @@ class vdW():
 
     def get_width(self, transition, n, T):
         """
+        Interface for get_width2 using the transition properties.
         Energies in eV, alpha in m^2,
         lambda in nm, n in m^-3, T in K, m in amu.
-        From: N. Konjevic & / Physics Reports 316 (1999) 339}401
         """
-
+        
         xc = self.transition.wl
         m1 = self.transition.particle.m
         m2 = self.pert.m
@@ -40,7 +40,22 @@ class vdW():
         lu = self.transition.upperl
         ll = self.transition.lowerl
         alpha = self.alpha(self.pert)
+                
+        return self.get_width2(xc,m1,m2,T,n,Eion,Eu,El,lu,ll,alpha)
 
+
+    def get_shift(self,x, n, T):
+        w = self.get_width(self.transition, n, T)
+        s = w*0.28 # citation needed
+        return s
+
+    
+    def get_width2(self,xc,m1,m2,T,n,Eion,Eu,El,lu,ll,alpha):
+        """
+        Energies in eV, alpha in m^2,
+        lambda in nm, n in m^-3, T in K, m in amu.
+        From: N. Konjevic & / Physics Reports 316 (1999) 339}401
+        """
         mu = m1*m2/(m1+m2)
 
         ### upper
@@ -59,11 +74,6 @@ class vdW():
         w = 8.18e-12 * (xc**2 ) * ((alpha * R**2)**(2/5)) * ((T/mu)**(3/10))*n
         return w*1e7 # to nm
 
-
-    def get_shift(self,x, n, T):
-        w = self.get_width(self.transition, n, T)
-        s = w*0.28 # citation needed
-        return s
 
     def hydrogen_profile(self,x,T,n):
         """ Data from NIST: J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009"""
@@ -91,8 +101,8 @@ class vdW():
             y = np.zeros(len(x))
             for comp in components:
                 Aik = comp[0]
-                wl = comp[1]
-                w = self.get_width(xc,m1,m2,T,n,Eion,*comp[2:],a)
+                wl = comp[1]     
+                w = self.get_width2(xc,m1,m2,T,n,Eion,*comp[2:],a)
                 y = y + Aik*lorentz_function(x,wl-656.280+middle_wl,w)
 
 
@@ -114,7 +124,7 @@ class vdW():
             for comp in components:
                 Aik = comp[0]
                 wl = comp[1]
-                w = self.get_width(xc,m1,m2,T,n,Eion,*comp[2:],a)
+                w = self.get_width2(xc,m1,m2,T,n,Eion,*comp[2:],a)
                 y = y + Aik*lorentz_function(x,wl-486.133+middle_wl,w)
 
 
