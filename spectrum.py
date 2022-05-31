@@ -37,11 +37,13 @@ class spectrum():
         int_col = 3
         aik_col = 4
         E_col = 6
+        g_col = 13
         for line in open(lines_file, 'r').readlines():
             if "Unc." in line: # some NIST files contain WL uncertainties.
                 int_col = int_col + 2
                 aik_col = aik_col + 2
                 E_col = E_col + 2
+                g_col = g_col + 2
 
             if line.startswith(spec_name):
                 emission_line = {}
@@ -69,6 +71,11 @@ class spectrum():
                             emission_line['Aik'] = float(array[aik_col])
                         else:
                             emission_line['Aik'] = -1
+                            
+                        if len(array[g_col]) > 1:
+                            g = array[g_col]
+                            emission_line['gi'] = float(g.split('-')[1])
+                            emission_line['gk'] = float(g.split('-')[0])
 
                         if len(array[E_col]) > 1:
                             ele = array[E_col]
@@ -118,6 +125,31 @@ class spectrum():
             spectrum = spectrum + profile
 
         return spectrum
+
+
+    def get_LTE_spectrum(self, x, Te, width=0.1, mu=0.5, min_int=-1, min_Aik=-1):
+        """ Return simulated spectrum with LTE line intnsities in units 
+        proportional (!) to Photons/s (NOT W/cm²s)
+        Lines are pseudo Voigt with the set width (FWHM) in nm and form 
+        parameter mu (0 = Gauss). 
+        """
+        try:
+            if not x:
+                x = self.spectrometer.x
+        except:
+            x = x
+        lines = self.get_linedata(min_int, min_Aik)
+        lines = list(filter(lambda k: k['wl']>self.wl_range[0], lines))
+        lines = list(filter(lambda k: k['wl']<self.wl_range[-1], lines))
+        spectrum = np.zeros(len(x))
+        for line in lines:
+            if 'gi' in line and 'Aik' in line and 'Ei' in line:
+                intensity = line['Aik']*line['gi']*np.exp(-line['Ei']/Te)/1e6
+                profile = intensity*psd_voigt_function(x, line['wl'], width, mu)
+                spectrum = spectrum + profile
+
+        return spectrum
+        
 
     def get_transitions(self, debug=False):
         """ Returns transition objects in the wavelength range """
