@@ -101,7 +101,7 @@ class spectrum():
         return lines
 
 
-    def get_spectrum(self,x=None, width=0.02):
+    def get_spectrum(self,x=None, width=0.02, min_int=-1, min_Aik=-1):
         """ Return simulated spectrum. Lines are Gaussian with
         the set width (FWHM) in nm  """
         try:
@@ -109,7 +109,7 @@ class spectrum():
                 x = self.spectrometer.x
         except:
             x = x
-        lines = self.get_linedata()
+        lines = self.get_linedata(min_int, min_Aik)
         lines = list(filter(lambda k: k['wl']>self.wl_range[0], lines))
         lines = list(filter(lambda k: k['wl']<self.wl_range[-1], lines))
         spectrum = np.zeros(len(x))
