@@ -23,7 +23,7 @@ class spectrum():
             if spectrometer.x is not None:
                 self.wl_range = (spectrometer.x[0],spectrometer.x[-1])
 
-    def load_nist_lines(self,particle):
+    def load_nist_lines(self, particle, min_int=-1, min_Aik=-1):
         emission_lines = []
         folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
             "emitter/nist-db")
@@ -66,7 +66,9 @@ class spectrum():
                             emission_line['rel_int'] = -1
 
                         if len(array[aik_col]) > 1:
-                            emission_line['Aik'] = float(array[4])
+                            emission_line['Aik'] = float(array[aik_col])
+                        else:
+                            emission_line['Aik'] = -1
 
                         if len(array[E_col]) > 1:
                             ele = array[E_col]
@@ -76,18 +78,20 @@ class spectrum():
                             emission_line['Ei'] = float(ele.split('-')[1])
                             emission_line['Ek'] = float(ele.split('-')[0])
                             # NIST does it the other way around
-                        emission_lines.append(emission_line)
-
+                            
+                        if (emission_line['rel_int'] >= min_int)\
+                                         and (emission_line['Aik'] >= min_Aik):
+                            emission_lines.append(emission_line)
         return emission_lines
 
 
-    def get_linedata(self):
+    def get_linedata(self, min_int=-1, min_Aik=-1):
         lines = []
         if isinstance(self.particles,(list,tuple)):
             for particle in self.particles:
-                lines += self.load_nist_lines(particle)
+                lines += self.load_nist_lines(particle, min_int, min_Aik)
         else:
-            lines = self.load_nist_lines(self.particles)
+            lines = self.load_nist_lines(self.particles, min_int, min_Aik)
 
         lines = sorted(lines, key=lambda k: k['wl'])
         if self.wl_range:
