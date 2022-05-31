@@ -101,9 +101,9 @@ class spectrum():
         return lines
 
 
-    def get_spectrum(self,x=None, width=0.02, min_int=-1, min_Aik=-1):
-        """ Return simulated spectrum. Lines are Gaussian with
-        the set width (FWHM) in nm  """
+    def get_spectrum(self,x=None, width=0.02, mu=0, min_int=-1, min_Aik=-1):
+        """ Return simulated spectrum. Lines are pseudo Voigt with
+        the set width (FWHM) in nm and form parameter mu (0 = Gauss)  """
         try:
             if not x:
                 x = self.spectrometer.x
@@ -114,7 +114,7 @@ class spectrum():
         lines = list(filter(lambda k: k['wl']<self.wl_range[-1], lines))
         spectrum = np.zeros(len(x))
         for line in lines:
-            profile = line['rel_int']*gauss_function(x, line['wl'], width)
+            profile = line['rel_int']*psd_voigt_function(x, line['wl'], width, mu)
             spectrum = spectrum + profile
 
         return spectrum
