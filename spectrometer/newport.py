@@ -25,10 +25,11 @@ class newport(basic):
         if order == None:
             order = self.order
 
-        n = self.grating_constant*1e3 # grating constant
-        L = 274.5e-3 # focal length
+        if np.round(self.grating_constant) == 1200:
+            n = 1197e3 # effective grating constant
+        L = 260e-3 # focal length
         D = -23.66 * (np.pi/180) # (fixed) angle between the grating and the two mirrors
-        w = 26e-3 # width cam chip
+        w = 24.56e-3 # width cam chip
         shift = -0.8
         xc0 = cw*1e-9 + shift*1e-9
 
