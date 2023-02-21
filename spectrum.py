@@ -54,9 +54,9 @@ class spectrum():
                 if array[name_col] == spec_name.replace(" ",""):
                     if len(array[wl_col]) > 3:
                         emission_line['wl'] = float(array[wl_col])
-
                         substring = array[int_col].replace(" ","")
                         substring = substring.replace("q","") # important for Cr
+                        substring = substring.replace("r","") # important for Ag
                         substring = substring.replace("g","") # important for Al
                         if len(substring) > 0:
                             # Col sometimes contain strings, so...
