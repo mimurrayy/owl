@@ -15,7 +15,7 @@ class stark():
 
     def get_profile(self,x, ne, Te=None, pert=None):
         middle_wl = x[int(len(x)/2)]
-        ele = self.transition.element
+        ele = self.transition.emitter.symbol
 
         ################ Hydrogen ########
         if ele == "H":

@@ -7,6 +7,7 @@ from scipy import interpolate
 from .util import *
 from . import stark
 from . import vdW
+import mendeleev 
 
 class emission_line():
     def __init__(self, spectrometer, transition, wl,
@@ -29,6 +30,18 @@ class emission_line():
         self.side = side # symmetric version of Thompson?
         self.last_profiles = []
 
+        if pert:          
+            self.pert_name, self.pert_charge = parse_spectroscopic_name(pert)
+            self.pert = mendeleev.element(self.pert_name)
+            self.pert.charge = self.pert_charge
+            self.pert.m = self.pert.mass
+            self.pert.Ei = self.pert.ionenergies[1]
+            if T:
+                self.pert.T = T
+            elif Te:
+                self.pert.T = Te*const.eV/const.k
+
+
 
     def get_profile(self, x, A = 1,
             shift = False, wl=None, T = None, Eb = None, gamma = None, B = None,
@@ -50,6 +63,19 @@ class emission_line():
             N = self.N
         if pert == None and self.pert:
             pert = self.pert
+        
+        elif pert:
+            self.pert_name, self.pert_charge = parse_spectroscopic_name(pert)
+            self.pert = mendeleev.element(self.pert_name)
+            self.pert.charge = self.pert_charge
+            self.pert.m = self.pert.mass
+            self.pert.Ei = self.pert.ionenergies[1]
+            if T:
+                self.pert.T = T
+            elif Te:
+                self.pert.T = Te*const.eV/const.k
+            pert = self.pert
+
 
         self.last_profiles = []
         orig_x = x

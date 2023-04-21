@@ -4,6 +4,13 @@ from scipy import constants as const
 from .util import *
 import os
 from .emitter import transition
+import mendeleev 
+from astroquery.nist import Nist
+from astroquery.nist_levels import NistLevels
+import astropy.units as u
+import re
+import warnings
+
 
 class spectrum():
     """ Holds information about a complete emission spectrum of the given
@@ -14,8 +21,15 @@ class spectrum():
     spectrometer: owl.spectrometer object
     wl_range: tuple or list of lower and upper wavelength of the spectrum"""
 
-    def __init__(self, particles, spectrometer=None, wl_range=None):
-        self.particles = particles
+    def __init__(self, emitter_name, spectrometer=None, wl_range=None):
+        self.name, self.charge = parse_spectroscopic_name(emitter_name)
+        self.spec_name = emitter_name
+        self.emitter = self.particle = mendeleev.element(self.name)
+        self.emitter.charge = self.charge
+        self.emitter.m = self.emitter.mass
+        self.emitter.Ei = self.emitter.ionenergies[1]
+        self.charge = self.emitter.charge
+        
         self.spectrometer = spectrometer
         self.wl_range = wl_range
         self.linedata = None
@@ -23,15 +37,16 @@ class spectrum():
             if spectrometer.x is not None:
                 self.wl_range = (spectrometer.x[0],spectrometer.x[-1])
 
-    def load_nist_lines(self, particle, min_int=-1, min_Aik=-1):
+
+    def load_nist_lines(self, emitter_name, min_int=-1, min_Aik=-1):
         emission_lines = []
         folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
             "emitter/nist-db")
 
         unwanted_chars = ["q","[","]","†","?"]
 
-        lines_file = os.path.join(folder, (particle.element.lower() + "-lines.txt"))
-        spec_name = particle.spectroscopic_name()
+        lines_file = os.path.join(folder, (self.name.lower() + "-lines.txt"))
+        spec_name = emitter_name
         name_col = 0
         wl_col = 1
         int_col = 3
@@ -92,20 +107,18 @@ class spectrum():
         return emission_lines
 
 
-    def get_linedata(self, min_int=-1, min_Aik=-1):
-        lines = []
-        if isinstance(self.particles,(list,tuple)):
-            for particle in self.particles:
-                lines += self.load_nist_lines(particle, min_int, min_Aik)
+    def get_linedata(self):
+        if self.wl_range is not None:
+            wl_low = self.wl_range[0]
+            wl_high = self.wl_range[-1]
         else:
-            lines = self.load_nist_lines(self.particles, min_int, min_Aik)
+            wl_low = 0
+            wl_high = 9999
+            
+        nist_lines = Nist.query(wl_low*u.nm, wl_high*u.nm, 
+                                linename=self.spec_name, wavelength_type='vac+air')
 
-        lines = sorted(lines, key=lambda k: k['wl'])
-        if self.wl_range:
-            lines = list(filter(lambda k: k['wl']>self.wl_range[0], lines))
-            lines = list(filter(lambda k: k['wl']<self.wl_range[-1], lines))
-
-        return lines
+        return nist_lines
 
 
     def get_spectrum(self,x=None, width=0.02, mu=0, min_int=-1, min_Aik=-1):
@@ -116,53 +129,106 @@ class spectrum():
                 x = self.spectrometer.x
         except:
             x = x
-        lines = self.get_linedata(min_int, min_Aik)
-        lines = list(filter(lambda k: k['wl']>self.wl_range[0], lines))
-        lines = list(filter(lambda k: k['wl']<self.wl_range[-1], lines))
+            
+        nist_lines = self.get_linedata()
+        
         spectrum = np.zeros(len(x))
-        for line in lines:
-            profile = line['rel_int']*psd_voigt_function(x, line['wl'], width, mu)
-            spectrum = spectrum + profile
+        for line in  nist_lines:   
+            rel_int = line['Rel.']
+            wl =  line['Observed']
+            if not np.ma.is_masked(rel_int) and not np.ma.is_masked(wl):
+                rel_int = str(rel_int) # is byte type initally
+                wl =  str(wl)
+                rel_int = re.sub(r'[^\d.]+', '', rel_int)
+                wl = re.sub(r'[^\d.]+', '', wl) # removes non-number chars
+                try: # conversion to float can still fail...
+                    rel_int = float(rel_int)
+                    wl = float(wl)
+                    if min_Aik > 0:
+                        with warnings.catch_warnings(): # ignore masked element warning
+                            warnings.simplefilter("ignore", category=UserWarning)
+                            Aik =  float(line['Aki'])
+                    else:
+                        Aik = 1
+                        
+                    if rel_int > min_int and Aik > min_Aik:
+                        profile = rel_int*psd_voigt_function(x, wl, width, mu)
+                        spectrum = spectrum + profile
+                except:
+                    pass
 
         return spectrum
 
 
-    def get_LTE_spectrum(self, x, Te, width=0.1, mu=0.5, min_int=-1, min_Aik=-1):
+    def get_LTE_spectrum(self, x, Te, width=0.1, mu=0.5, norm=False, min_int=-1, min_Aik=-1):
         """ Return simulated spectrum with LTE line intnsities in units 
         proportional (!) to Photons/s (NOT W/cm²s)
         Lines are pseudo Voigt with the set width (FWHM) in nm and form 
-        parameter mu (0 = Gauss). 
+        parameter mu (0 = Gauss).
+        Set norm=True to normalize the intensity to 1 for easier fitting.
         """
         try:
             if not x:
                 x = self.spectrometer.x
         except:
             x = x
-        lines = self.get_linedata(min_int, min_Aik)
-        lines = list(filter(lambda k: k['wl']>self.wl_range[0], lines))
-        lines = list(filter(lambda k: k['wl']<self.wl_range[-1], lines))
-        spectrum = np.zeros(len(x))
-        for line in lines:
-            if 'gi' in line and 'Aik' in line and 'Ei' in line:
-                intensity = line['Aik']*line['gi']*np.exp(-line['Ei']/Te)/1e6
-                profile = intensity*psd_voigt_function(x, line['wl'], width, mu)
-                spectrum = spectrum + profile
+        nist_lines = self.get_linedata()
 
+        spectrum = np.zeros(len(x))
+        for line in  nist_lines:   
+            c1 = str(line['Observed'])
+            # astroquery does not filter out headings in the middle of the table
+            if 'Observed' in c1 or "Wavelength" in c1 or "nm" in c1:
+                continue
+            
+            wl =  line['Observed']
+            Aik = line['Aki']
+            
+            if not np.ma.is_masked(wl) and not np.ma.is_masked(Aik):
+                
+                wl =  str(wl)
+                Aik = str(Aik)
+                wl = re.sub(r'[^\d.]+', '', wl) # removes non-number chars
+                Aik = re.sub(r'[^\d.]+', '', Aik) # removes non-number chars
+                
+                if min_int > 0:
+                    with warnings.catch_warnings(): # ignore masked element warning
+                        warnings.simplefilter("ignore", category=UserWarning)
+                        rel_int =  float(line['Rel.'])
+                else:
+                    rel_int = 1
+
+                try: # conversion to float can still fail...
+                    wl = float(wl)
+                    Aik = float(Aik)
+                    gi = line['gi   gk'].split('-')[1]
+                    Ei = line['Ei           Ek'].split('-')[1]
+                    Ei = float(Ei)
+                    gi = float(gi)
+
+                    if rel_int > min_int and Aik > min_Aik:
+                        intensity = Aik*gi*np.exp(-Ei/Te)
+                        profile = intensity*psd_voigt_function(x, wl, width, mu)
+                        spectrum = spectrum + profile
+                except:
+                    pass
+        if norm == True:
+            spectrum = spectrum/np.max(spectrum)
         return spectrum
         
 
-    def get_transitions(self, debug=False):
-        """ Returns transition objects in the wavelength range """
-        transitions = []
-        if isinstance(self.particles,(list,tuple)):
-            for particle in self.particles:
-                for line in self.load_nist_lines(particle):
-                    if line['wl'] > self.wl_range[0] and line['wl'] < self.wl_range[-1]:
-                        this_transition = transition(particle, line['wl'], debug=debug)
-                        transitions.append(this_transition)
-        else:
-            for line in self.load_nist_lines(self.particles):
-                if line['wl'] > self.wl_range[0] and line['wl'] < self.wl_range[-1]:
-                    this_transition = transition(self.particles, line['wl'], debug=debug)
-                    transitions.append(this_transition)
-        return transitions
+    # def get_transitions(self, debug=False):
+    #     """ Returns transition objects in the wavelength range """
+    #     transitions = []
+    #     if isinstance(self.particles,(list,tuple)):
+    #         for particle in self.particles:
+    #             for line in self.load_nist_lines(particle):
+    #                 if line['wl'] > self.wl_range[0] and line['wl'] < self.wl_range[-1]:
+    #                     this_transition = transition(particle, line['wl'], debug=debug)
+    #                     transitions.append(this_transition)
+    #     else:
+    #         for line in self.load_nist_lines(self.particles):
+    #             if line['wl'] > self.wl_range[0] and line['wl'] < self.wl_range[-1]:
+    #                 this_transition = transition(self.particles, line['wl'], debug=debug)
+    #                 transitions.append(this_transition)
+    #     return transitions

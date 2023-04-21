@@ -10,7 +10,7 @@ class griem():
         self.transition = transition
 
     def get_width_shift(self, ne, Te):
-        ele = self.transition.element
+        ele = self.transition.emitter.symbol
         wl = self.transition.wl
 
         if ele == "O" and round(wl, 0) == 777.:

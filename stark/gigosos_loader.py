@@ -95,13 +95,14 @@ class gigosos_loader():
 
     def load_file(self,ne,mu,rho):
         folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),"Gigosos")
-        if self.transition.element == "H" and round(self.transition.wl,0) == 656.0:
+        ele = self.transition.emitter.symbol
+        if ele == "H" and round(self.transition.wl,0) == 656.0:
             folder = os.path.join(folder,"HalphaProfiles")
             filename = "BAn"
-        if self.transition.element == "H" and round(self.transition.wl,0) == 486.0:
+        if ele == "H" and round(self.transition.wl,0) == 486.0:
             folder = os.path.join(folder,"HbetaProfiles")
             filename = "BBn"
-        if self.transition.element == "H" and round(self.transition.wl,0) == 434.0:
+        if ele == "H" and round(self.transition.wl,0) == 434.0:
             folder = os.path.join(folder,"HgammaProfiles")
             filename = "BGn"
 

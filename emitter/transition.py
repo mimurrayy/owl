@@ -1,35 +1,56 @@
 #!/usr/bin/python
 
 import os
-from ..util import *
-from .level import *
+import numpy as np
+from ..util import parse_spectroscopic_name, get_spectroscopic_name
+from .level import level
+import mendeleev 
+from astroquery.nist import Nist
+import astropy.units as u
 
 class transition():
-    def __init__(self, particle, transition_wavelength, debug=False):
-        self.particle = particle
-        self.element = particle.element
-        self.charge = particle.charge
-        self.wl = round(transition_wavelength, 3)
-        self.upperE = None # Energy in eV
-        self.lowerE = None
-        self.upperJ = None # Angular momentum
-        self.lowerJ = None
-        self.upperG = None # Lande g factor
-        self.lowerG = None
-        self.upperl = None # l quantum number
-        self.lowerl = None
-        self.Aik    = None
-        self.upperg = None
-        self.lowerg = None
+    def __init__(self, emitter_name, wavelength, debug=False):
+        self.name, self.charge = parse_spectroscopic_name(emitter_name)
+        self.spec_name = emitter_name
+        self.emitter = self.particle = mendeleev.element(self.name)
+        self.emitter.charge = self.charge
+        self.emitter.m = self.emitter.mass
+        self.emitter.Ei = self.emitter.ionenergies[1]
+        self.charge = self.emitter.charge
+        
+        # Load data tables from NIST (+- 1 nm around requested wl)
+        nist_lines = Nist.query((wavelength-1)*u.nm, (wavelength+1)*u.nm, 
+                                linename=emitter_name, wavelength_type='vac+air')
+        
+        # select closest line
+        line_idx = np.argmin((nist_lines['Observed']-wavelength)**2)
+        row = nist_lines[line_idx]
+
+        self.upperE = float(row['Ei           Ek'].split('-')[1]) # Energy in eV
+        self.lowerE = float(row['Ei           Ek'].split('-')[0])
+        # self.upperJ = row['Upper level'].split('|')[-1] # Angular momentum
+        # self.lowerJ = row['Lower level'].split('|')[-1]
+        
+        upper_conf_end = row['Upper level'].split('|')[0].split('.')
+        if "(" in upper_conf_end[-1]:
+            upper_conf_end.pop()
+        lower_conf_end = row['Lower level'].split('|')[0].split('.')
+        if "(" in lower_conf_end[-1]:
+            lower_conf_end.pop()
         try:
-            self.nist_info(debug=debug)
-        except SyntaxError:
-            if debug:
-                print("Warning: EOF error. Should be harmless.")
-        except Exception as e:
-            print("No NIST Databse available.")
-            print(e)
-        self.upper_level, self.lower_level = self.levels(debug=debug)
+            self.upperl = self.l_name_to_num(upper_conf_end[-1][1])
+            self.lowerl = self.l_name_to_num(lower_conf_end[-1][1]) 
+        except:
+            self.upperl = None
+            self.lowerl = None
+        
+        self.Aik    = row['Aki']
+        self.upperg = float(row['gi   gk'].split('-')[1])
+        self.lowerg = float(row['gi   gk'].split('-')[0])
+        self.wl = row['Observed']
+        
+
+        self.upper_level, self.lower_level = self.levels()
         self.upper, self.lower = self.upper_level, self.lower_level
 
     def l_name_to_num(self, name):
@@ -37,141 +58,13 @@ class transition():
         num = chars.index(name)
         return num
 
-    def levels(self, debug=False):
-        upper_level = level(self.particle, self.upperE, debug=debug)
-        lower_level = level(self.particle, self.lowerE, debug=debug)
+    def levels(self):
+        upper_level = level(self.spec_name, self.upperE)
+        lower_level = level(self.spec_name, self.lowerE)
         self.upperJ = upper_level.J
         self.upperG = upper_level.G
         self.lowerJ = lower_level.J
         self.lowerG = lower_level.G
         return upper_level, lower_level
 
-    def nist_info(self, debug=False):
-        "Load NIST Tables and set E,J and G"
-        folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "nist-db")
-        lines_file = os.path.join(folder, (self.element.lower() + "-lines.txt"))
-        spec_name = get_spectroscopic_name(self.element, self.charge)
-        name_col = 0
-        wl_col = 1
-        ritz_col = 2
-        int_col = 3
-        aik_col = 4
-        E_col = 6
-        lowconf_col = 7
-        upconf_col = 10
-        g_col = 13
-        for line in open(lines_file, 'r').readlines():
-            if "Unc." in line and int_col == 3: # some NIST files contain WL uncertainties.
-                ritz_col = ritz_col + 1
-                int_col = int_col + 2
-                aik_col = aik_col + 2
-                E_col = E_col + 2
-                lowconf_col = lowconf_col + 2
-                upconf_col = upconf_col + 2
-                g_col = g_col + 2
-            if line.split('|')[0].replace(' ','') == spec_name.replace(' ',''):
-                line = line.replace(" ", "")
-                array = line.split("|")
-                wl = False
-                if len(array[wl_col]) > 3:
-                    wl = float(array[wl_col])
-                elif len(array[ritz_col]) > 3: # use ritz wl if no observed wl
-                    wl = float(array[ritz_col])
-
-                if wl:
-                    if self.wl == round(wl, 3):
-                        this_col = array[E_col]
-                        this_col = this_col.replace("[","")
-                        this_col = this_col.replace("]","")
-                        this_col = this_col.replace("(","")
-                        this_col = this_col.replace(")","")
-                        self.upperE = float(this_col.split("-")[1])
-                        self.lowerE = float(this_col.split("-")[0])
-                        upper_conf = array[upconf_col]
-                        upper_conf_parts = upper_conf.split('.')
-                        if "(" in upper_conf_parts[-1]:
-                            upper_conf_parts.pop()
-
-                        lower_conf = array[lowconf_col]
-                        lower_conf_parts = lower_conf.split('.')
-                        if "(" in lower_conf_parts[-1]:
-                            lower_conf_parts.pop()
-
-                        self.upperl = self.l_name_to_num(upper_conf_parts[-1][1])
-                        self.lowerl = self.l_name_to_num(lower_conf_parts[-1][1])
-                        try:
-                            self.Aik = float(array[aik_col])
-                        except:
-                            if debug:
-                                print("No Aik in NIST DB")
-                        this_col = array[g_col]
-                        try:
-                            self.upperg = float(this_col.split("-")[1])
-                        except:
-                            if debug:
-                                print("No g in NIST DB")
-                        try:
-                            self.lowerg = float(this_col.split("-")[0])
-                        except:
-                            if debug:
-                                print("No g in NIST DB")
-
-
-
-def load_nist_lines(self, particle):
-        emission_lines = []
-        folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-            "emitter/nist-db")
-
-        unwanted_chars = ["q","[","]","†","?"]
-
-        lines_file = os.path.join(folder, (particle.element.lower() + "-lines.txt"))
-        spec_name = particle.spectroscopic_name()
-        name_col = 0
-        wl_col = 1
-        int_col = 3
-        aik_col = 4
-        E_col = 6
-        for line in open(lines_file, 'r').readlines():
-            if "Unc." in line: # some NIST files contain WL uncertainties.
-                int_col = int_col + 2
-                aik_col = aik_col + 2
-                E_col = E_col + 2
-
-            if line.split('|')[0].replace(' ','') == spec_name.replace(' ',''):
-                emission_line = {}
-                emission_line['particle'] = spec_name
-                observed_wl = rel_int = Aik = Ei = Ek = None
-                line = line.replace(" ", "")
-                array = line.split("|")
-                if array[name_col] == spec_name.replace(" ",""):
-                    if len(array[wl_col]) > 3:
-                        emission_line['wl'] = float(array[wl_col])
-                        substring = array[int_col].replace(" ","")
-                        substring = substring.replace("q","") # important for Cr
-                        substring = substring.replace("r","") # important for Ag
-                        substring = substring.replace("g","") # important for Al
-                        if len(substring) > 0:
-                            # Col sometimes contain strings, so...
-                            try:
-                                emission_line['rel_int'] = float(substring)
-                            except:
-                                emission_line['rel_int'] = -1
-                        else:
-                            emission_line['rel_int'] = -1
-
-                        if len(array[aik_col]) > 1:
-                            emission_line['Aik'] = float(array[4])
-
-                        if len(array[E_col]) > 1:
-                            ele = array[E_col]
-                            for c in unwanted_chars:
-                                ele = ele.replace(c,"")
-
-                            emission_line['Ei'] = float(ele.split('-')[1])
-                            emission_line['Ek'] = float(ele.split('-')[0])
-                            # NIST does it the other way around
-                        emission_lines.append(emission_line)
-
-        return emission_lines
-
+    
