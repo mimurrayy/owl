@@ -19,7 +19,11 @@ class gigosos_he_loader():
         self.transition = transition
 
 
-    def download_profiles():
+    def download_profiles(redownload = False):
+        if os.path.exists(data_folder447+"/table06.txt") and \
+           os.path.exists(data_folder492+"/table06.txt") and redownload==False:
+            return
+        print("Downloading Stark broadening data tables for helium.")
         URL447 = "https://cdsarc.u-strasbg.fr/ftp/J/A+A/503/293/tab.tar.gz"
         URL492 = "http://cdsarc.u-strasbg.fr/ftp/J/A+A/542/A75/tab.tar.gz"
         try:

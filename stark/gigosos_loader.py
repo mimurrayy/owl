@@ -16,7 +16,10 @@ class gigosos_loader():
         self.transition = transition
         
         
-    def download_profiles():
+    def download_profiles(redownload = False):
+        if os.path.exists(data_folder+"/HalphaProfiles.zip") and redownload==False:
+            return
+        print("Downloading Stark broadening data tables for hydrogen.")
         URL = "https://ars.els-cdn.com/content/image/1-s2.0-S0584854703000971-mmc1.zip"
         try:
             response = requests.get(URL)
