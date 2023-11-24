@@ -62,9 +62,11 @@ class transition():
 
 
         row = nist_lines[line_idx]
-
-        self.upperE = float(row['Ei           Ek'].split('-')[1]) # Energy in eV
-        self.lowerE = float(row['Ei           Ek'].split('-')[0])
+        
+        self.upperE = row['Ei           Ek'].split('-')[1]
+        self.upperE = float(non_decimal.sub('', str(self.upperE)))
+        self.lowerE = row['Ei           Ek'].split('-')[0]
+        self.lowerE = float(non_decimal.sub('', str(self.lowerE)))
         # self.upperJ = row['Upper level'].split('|')[-1] # Angular momentum
         # self.lowerJ = row['Lower level'].split('|')[-1]
         
