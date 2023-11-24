@@ -122,8 +122,11 @@ class gigosos_loader():
         T_name = str(T).zfill(7)
         mu_name = str(int(mu*100)).zfill(4)
         filename = prefix + ne_name + "t" + T_name + "m" + mu_name + ".dlp"
-        datafile = datazip.open(filename)
-        x,y = np.loadtxt(datafile).T
+        try:
+            datafile = datazip.open(filename)
+            x,y = np.loadtxt(datafile).T
+        except:
+            raise SystemExit('Error: Could not find Stark broadening data tables.')
         return x,y
 
 
