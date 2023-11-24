@@ -4,13 +4,14 @@ from scipy.signal import fftconvolve as convolve
 from scipy import constants as const
 from scipy import interpolate
 #from . import emitter
-from .util import *
+from .util import zeeman, parse_spectroscopic_name, doppler_thompson,\
+                                    doppler_maxwell, interpol, gauss_function
 from . import stark
 from . import vdW
 import mendeleev 
 
 class emission_line():
-    def __init__(self, spectrometer, transition, wl,
+    def __init__(self, transition, wl, spectrometer = None,
     T = None, Eb = None, gamma = None, B = None, ne = None, Te = None,
     side=False, N = None, pert = None):
         """ T in K, Eb,Te in eV, ne in m^-3, N in m^-3"""
@@ -24,6 +25,7 @@ class emission_line():
         self.gamma = gamma
         self.B  = B
         self.ne = ne
+        self.Te = Te
         self.N  = N
         self.pert = pert
         self.spectrometer = spectrometer
@@ -59,6 +61,8 @@ class emission_line():
             B = self.B
         if ne == None and self.ne:
             ne = self.ne
+        if Te == None and self.Te:
+            Te = self.Te
         if N == None and self.N:
             N = self.N
         if pert == None and self.pert:
@@ -130,10 +134,13 @@ class emission_line():
 
         # We let the instrumental profile determine center position.
         # ALL other components are shifted to the middle!
-        instrumental_profile = self.spectrometer.instrument_function(x, wl+s, self.transition)
-        instrumental_profile = instrumental_profile/resolution/1024
-        profile = instrumental_profile
+        if self.spectrometer:
+            instrumental_profile = self.spectrometer.instrument_function(x, wl+s, self.transition)
+            instrumental_profile = instrumental_profile/resolution/1024
+        else:
+            instrumental_profile = gauss_function(x, wl+s, x[0]-x[1])
 
+        profile = instrumental_profile
         for component in components:
             profile = convolve(profile, component, mode='same') * resolution
         y = A*profile
