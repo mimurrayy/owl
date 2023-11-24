@@ -24,12 +24,18 @@ class level():
         # clean up the energy column from NIST levels (e.g. remove '[')
         non_decimal = re.compile(r'[^\d.]+')
         level_energies = []
+
         for entry in nist_levels['Level (eV)']:
-            level_energies.append(non_decimal.sub('', str(entry)))
+            this_entry = non_decimal.sub('', str(entry))
+            try: 
+                this_entry = float(this_entry)
+            except:
+                this_entry = np.nan
+            level_energies.append(this_entry)
         level_energies = np.array(level_energies, dtype=float)
-        
+
         # select upper and lower energy levels
-        level_idx = np.argmin((level_energies-energy)**2)
+        level_idx = np.argmin((np.nan_to_num(level_energies)-energy)**2)
         row = nist_levels[level_idx]
         
         self.E = level_energies[level_idx] # Energy in eV
@@ -53,7 +59,6 @@ class level():
             self.G = nist_levels[level_idx]['Landé'] #Lande g factor
         else:
             self.G = None
-            print("Warning: No Landé-g factors in the NIST asd database.")
         
 
 
@@ -61,62 +66,74 @@ class level():
         chars = ["s","p","d","f","g","h","i","j"]
         num = chars.index(name)
         return num
+    
+    
+    def get_transitions(self, kind="all", debug=False):
+        """Return the transition objects that belong to the energy level
+        Type is a string and may be "from", "to" or "all", to select transitions
+        from the level, to the level or both."""
+        from .transition import transition # needed to avoid circular import
+
+        # clean up the wl column from NIST levels (e.g. remove '[') below
+        non_decimal = re.compile(r'[^\d.]+')
+
+        # Load data tables from NIST (+- 1 nm around requested wl)
+        nist_lines = Nist.query(1*u.nm, 99999*u.nm, 
+                                linename=self.spec_name, wavelength_type='vac+air')
+
+        transitions_to = []
+        transitions_from = []
+        transitions_all = []
+
+        for entry in nist_lines:
+            if not np.ma.is_masked(entry['Ei           Ek']) \
+                                    and not (np.ma.is_masked(entry['Observed']) and np.ma.is_masked(entry['Ritz']) ):
+                
+                if '-' in entry['Ei           Ek']:
+                    upperE = float(entry['Ei           Ek'].split('-')[1]) # Energy in eV
+                    lowerE = float(entry['Ei           Ek'].split('-')[0])
+                    if upperE == self.E:
+                        try:
+                            wl = float(entry['Observed'])
+                        except:
+                            try:
+                                wl = float(non_decimal.sub('', str(entry['Ritz'])))
+                            except:
+                                break
+                        if not np.isnan(wl):
+                            this_transition = transition(self.spec_name, wl, wl_type="either")
+                            transitions_from.append(this_transition)                    
+                            transitions_all.append(this_transition)
+                    
+                    if lowerE == self.E:
+                        try:
+                            wl = float(entry['Observed'])
+                            if np.isnan(wl):
+                                wl = float(non_decimal.sub('', str(entry['Ritz'])))
+                        except:
+                            try:
+                                wl = float(non_decimal.sub('', str(entry['Ritz'])))
+                            except:
+                                break
+                        if not np.isnan(wl):
+                            this_transition = transition(self.spec_name, wl, wl_type="either")
+                            transitions_to.append(this_transition)                    
+                            transitions_all.append(this_transition)
+
+        if kind=="all":
+            return transitions_all
+        if kind=="from":
+            return transitions_from        
+        if kind=="to":
+            return transitions_to
+        
+        return None
 
 
-    # def get_transitions(self, kind="all", debug=False):
-    #     """Return the transition objects that belong to the energy level
-    #     Type is a string and may be "from", "to" or "all", to select transitions
-    #     from the level, to the level or both."""
-    #     from .transition import transition # needed to avoid circular import
-
-    #     folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "nist-db")
-    #     lines_file = os.path.join(folder, (self.element.lower() + "-lines.txt"))
-    #     spec_name = get_spectroscopic_name(self.element, self.charge)
-
-    #     wl_col = 1
-    #     E_col = 6
-
-    #     transitions = []
-
-    #     for line in open(lines_file, 'r').readlines():
-    #         if "Unc." in line and int_col == 3: # some NIST files contain WL uncertainties.
-    #             E_col = E_col + 2
-    #         if line.startswith(spec_name):
-    #             line = line.replace(" ", "")
-    #             array = line.split("|")
-    #             this_col = array[E_col]
-    #             this_col = this_col.replace("[","")
-    #             this_col = this_col.replace("]","")
-    #             this_col = this_col.replace("(","")
-    #             this_col = this_col.replace(")","")
-    #             upperE = this_col.split("-")[1]
-    #             lowerE = this_col.split("-")[0]
-
-    #             if (str(self.E) in upperE) and (kind=="all" or kind=="from"):
-    #                 try:
-    #                     observed_wl = float(array[wl_col])
-    #                 except:
-    #                     observed_wl = float(array[wl_col+1]) # use calc WL : (
-    #                 wl = round(observed_wl, 3)
-    #                 this_transition = transition(self.particle, wl, debug=debug)
-    #                 transitions.append(this_transition)
-
-    #             if (str(self.E) in lowerE) and (kind=="all" or kind=="to"):
-    #                 try:
-    #                     observed_wl = float(array[wl_col])
-    #                 except:
-    #                     observed_wl = float(array[wl_col+1]) # use calc WL : (
-    #                 wl = round(observed_wl, 3)
-    #                 this_transition = transition(self.particle, wl, debug=debug)
-    #                 transitions.append(this_transition)
-
-    #     return transitions
-
-
-    # def get_lifetime(self, debug=False):
-    #     Aiks = []
-    #     for transition in self.get_transitions(kind="from", debug=debug):
-    #         if transition.Aik:
-    #             Aiks.append(transition.Aik)
-    #     sum_Aik = np.sum(Aiks)
-    #     return 1/sum_Aik
+    def get_lifetime(self, debug=False):
+        Aiks = []
+        for transition in self.get_transitions(kind="from", debug=debug):
+            if transition.Aik:
+                Aiks.append(transition.Aik)
+        sum_Aik = np.sum(Aiks)
+        return 1/sum_Aik
