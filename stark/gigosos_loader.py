@@ -2,12 +2,35 @@
 
 import numpy as np
 from scipy import constants as const
-from ..util import *
+from ..util import interpol
 import os
+from platformdirs import user_data_dir
+import requests
+from pathlib import Path
+from zipfile import ZipFile
+from io import BytesIO
+data_folder = os.path.join(user_data_dir("owl-OES", "owl-OES"), "Gigosos2003H")
 
 class gigosos_loader():
     def __init__(self, transition):
         self.transition = transition
+        
+        
+    def download_profiles():
+        URL = "https://ars.els-cdn.com/content/image/1-s2.0-S0584854703000971-mmc1.zip"
+        try:
+            response = requests.get(URL)
+            zip_file = response.content
+        except:
+            print("ERROR: could not download hydrogen Stark broadening tables")
+            
+        try:
+            Path(data_folder).mkdir(parents=True, exist_ok=True)
+            with ZipFile(BytesIO(zip_file)) as zip_ref:
+                zip_ref.extractall(data_folder)
+        except:
+            print("ERROR: could now save hydrogen Stark broadening tables to disk")
+
 
     def load(self, ne, Te, pert):
         r0 = (3/(4 * np.pi * ne))**(1/3)
@@ -19,7 +42,6 @@ class gigosos_loader():
            mu = reduced_m * Te/pert.T
         else:
            mu = 1
-
         return self.load_stark_profile(ne, mu, rho)
 
 
@@ -87,33 +109,18 @@ class gigosos_loader():
     def rho_to_T(self,rho,ne):
         r0 = (3/(4 * np.pi * ne))**(1/3)
         T = ((ne*const.e**2)/(const.epsilon_0 * const.k))*(r0/rho)**2
-        T = T*0.9999941
-        # if round(T) in [99937.0,174099.0]:
-        #     T = T - 1
+        T = T*0.9999944 # Gigosos temperature calculations are strange...
         return T
 
 
-    def load_file(self,ne,mu,rho):
-        folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),"Gigosos")
-        ele = self.transition.emitter.symbol
-        if ele == "H" and round(self.transition.wl,0) == 656.0:
-            folder = os.path.join(folder,"HalphaProfiles")
-            filename = "BAn"
-        if ele == "H" and round(self.transition.wl,0) == 486.0:
-            folder = os.path.join(folder,"HbetaProfiles")
-            filename = "BBn"
-        if ele == "H" and round(self.transition.wl,0) == 434.0:
-            folder = os.path.join(folder,"HgammaProfiles")
-            filename = "BGn"
-
+    def load_file(self,ne,mu,rho,prefix,datazip):        
         ne_name = str(int(round(np.log10(ne)*100,0)))
         T = str(int(round(self.rho_to_T(rho,ne),0)))
         T_name = str(T).zfill(7)
         mu_name = str(int(mu*100)).zfill(4)
-        filename = filename + ne_name + "t" + T_name + "m" + mu_name + ".dlp"
-
-        x,y = np.loadtxt(os.path.join(folder,filename)).T
-
+        filename = prefix + ne_name + "t" + T_name + "m" + mu_name + ".dlp"
+        datafile = datazip.open(filename)
+        x,y = np.loadtxt(datafile).T
         return x,y
 
 
@@ -128,6 +135,7 @@ class gigosos_loader():
         else:
             return high_x,high_y
 
+
     def interpolate_stark_profile_ne(self,low_x, high_x, low_y, high_y, low_val, high_val, val):
         "Creates profile for arbitrary ne. Arrays must use same x!"
         low_y = interpol(low_x, low_y, high_x) # all to high_x
@@ -139,7 +147,22 @@ class gigosos_loader():
         else:
             return high_x,high_y
 
+
     def load_stark_profile(self,ne_, mu_, rho_):
+        
+        folder = data_folder
+        ele = self.transition.emitter.symbol
+        if ele == "H" and round(self.transition.wl,0) == 656.0:
+            datazip = os.path.join(folder,"HalphaProfiles.zip")
+            prefix = "BAn"
+        if ele == "H" and round(self.transition.wl,0) == 486.0:
+            datazip = os.path.join(folder,"HbetaProfiles.zip")
+            prefix = "BBn"
+        if ele == "H" and round(self.transition.wl,0) == 434.0:
+            datazip = os.path.join(folder,"HgammaProfiles.zip")
+            prefix = "BGn"
+        datazip = ZipFile(datazip, 'r')
+        
         x = None
         profiles_ne = []
         vals_ne = []
@@ -148,8 +171,8 @@ class gigosos_loader():
             vals_mu = []
             for mu in self.closest_mu(mu_):
                 rho_low,rho_high = self.closest_rho(rho_)
-                low_x,y_low = self.load_file(ne,mu,rho_low)
-                high_x,y_high = self.load_file(ne,mu,rho_high)
+                low_x,y_low = self.load_file(ne,mu,rho_low,prefix,datazip)
+                high_x,y_high = self.load_file(ne,mu,rho_high,prefix,datazip)
                 x,y = self.interpolate_stark_profile(low_x,high_x,y_low,y_high,rho_low,rho_high,rho_)
                 profiles_mu.append((x,y))
                 vals_mu.append(mu)

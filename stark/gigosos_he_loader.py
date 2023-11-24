@@ -2,12 +2,44 @@
 
 import numpy as np
 from scipy import constants as const
-from ..util import *
+from ..util import interpol
 import os
+import sys
+from platformdirs import user_data_dir
+import requests
+from pathlib import Path
+import tarfile
+from io import BytesIO
+data_folder447 = os.path.join(user_data_dir("owl-OES", "owl-OES"), "Gigosos2009He")
+data_folder492 = os.path.join(user_data_dir("owl-OES", "owl-OES"), "Lara2012He")
 
+            
 class gigosos_he_loader():
     def __init__(self, transition):
         self.transition = transition
+
+
+    def download_profiles():
+        URL447 = "https://cdsarc.u-strasbg.fr/ftp/J/A+A/503/293/tab.tar.gz"
+        URL492 = "http://cdsarc.u-strasbg.fr/ftp/J/A+A/542/A75/tab.tar.gz"
+        try:
+            response = requests.get(URL447)
+            zip_file447 = response.content
+            response = requests.get(URL492)
+            zip_file492 = response.content
+        except:
+            print("ERROR: could not download helium Stark broadening tables")
+            
+        try:
+            Path(data_folder447).mkdir(parents=True, exist_ok=True)
+            Path(data_folder492).mkdir(parents=True, exist_ok=True)
+            with tarfile.open(name=None, fileobj=BytesIO(zip_file447)) as zip_ref:
+                zip_ref.extractall(data_folder447)
+            with tarfile.open(name=None, fileobj=BytesIO(zip_file492)) as zip_ref:
+                zip_ref.extractall(data_folder492)
+        except:
+            print("ERROR: could now save helium Stark broadening tables to disk")
+            
 
     def load(self, ne, Te, pert):
         if pert:
@@ -73,6 +105,15 @@ class gigosos_he_loader():
 
 
     def get_T_stock(self, ne):
+        if round(self.transition.wl,0) == 447:
+            ne_stock = 10**np.linspace(21,24,10) # prevent rounding errors
+            if ne <= ne_stock[4]:
+                T_stock = np.array([5000, 10000, 20000, 40000])
+            if ne > ne_stock[4] and ne < ne_stock[8]:
+                T_stock = np.array([10000, 20000, 40000])
+            if ne >= ne_stock[8]:
+                T_stock = np.array([20000, 40000])
+                
         if round(self.transition.wl,0) == 492:
             if ne <= 1e22:
                 T_stock = np.array([5000, 10000, 20000, 40000])
@@ -82,14 +123,7 @@ class gigosos_he_loader():
                 T_stock = np.array([20000, 30000, 40000])
             if ne == 1e24:
                 T_stock = np.array([30000, 40000])
-
-        if round(self.transition.wl,0) == 447:
-            if ne <= 10**22.33:
-                T_stock = np.array([5000, 10000, 20000, 40000])
-            if ne > 10**22.33 and ne < 10**23.67:
-                T_stock = np.array([10000, 20000, 40000])
-            if ne >= 10**23.67:
-                T_stock = np.array([20000, 40000])
+                
         return T_stock
 
 
@@ -108,18 +142,22 @@ class gigosos_he_loader():
 
 
     def load_file(self,ne):
-        folder = os.path.join(os.path.dirname(os.path.realpath(__file__)),"Gigosos")
         if round(self.transition.wl,0) == 447:
-            folder = os.path.join(folder,"He447")
+            folder = data_folder447
             filename = "table"
             table_num = str(int(round((np.log10((ne/1e20))*3-1)))).zfill(2)
         if round(self.transition.wl,0) == 492:
+            folder = data_folder492
             folder = os.path.join(folder,"He492")
             filename = "table"
             table_num = str(int(round((np.log10((ne/1e20))*3+4)))).zfill(2)
 
         filename = filename + table_num + ".txt"
-        table = np.loadtxt(os.path.join(folder,filename)).T
+        try:
+            table = np.loadtxt(os.path.join(folder,filename)).T
+        except:
+            raise SystemExit('Error: Could not find Stark broadening data tables.')
+            # sys.exit('Error: Could not find Stark broadening data tables.')
         return table
 
 
@@ -147,11 +185,6 @@ class gigosos_he_loader():
 
     def load_stark_profile(self,ne_, mu_, T_):
         if round(self.transition.wl,0) == 447:
-            ne_stock = 10**np.linspace(21,24,10)
-        if round(self.transition.wl,0) == 492:
-            ne_stock = 10**np.linspace(20,24,13)
-
-        if round(self.transition.wl,0) == 447:
             mu_stock = np.array([0.8, 2, 4])
         if round(self.transition.wl,0) == 492:
             mu_stock = np.array([0.8, 2, 4, 10])
@@ -168,7 +201,7 @@ class gigosos_he_loader():
                 T_low,T_high = self.closest_T(T_,ne)
                 pos_low = (list(T_stock).index(T_low)+1) + (len(T_stock) * list(mu_stock).index(mu))
                 pos_high = (list(T_stock).index(T_high)+1) + (len(T_stock) * list(mu_stock).index(mu))
-                low_x,y_low = table[0], table[pos_low]
+                _,y_low = table[0], table[pos_low]
                 high_x,y_high = table[0], table[pos_high]
                 x,y = self.interpolate_stark_profile(high_x,y_low,y_high,T_low,T_high,T_)
                 profiles_mu.append((x,y))
