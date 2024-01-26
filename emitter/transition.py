@@ -21,7 +21,7 @@ class transition():
         and lower levels of the transition: upper_level/lower_level."""
         
         self.name, self.charge = parse_spectroscopic_name(emitter_name)
-        self.spec_name = emitter_name
+        self.spec_name = get_spectroscopic_name(self.name, self.charge)
         self.emitter = self.particle = mendeleev.element(self.name)
         self.emitter.charge = self.charge
         self.emitter.m = self.emitter.mass
@@ -32,7 +32,7 @@ class transition():
                 
         # Load data tables from NIST (+- 1 nm around requested wl)
         nist_lines = Nist.query((wavelength-1)*u.nm, (wavelength+1)*u.nm, 
-                                linename=emitter_name, wavelength_type='vac+air')
+                                linename=self.spec_name, wavelength_type='vac+air')
         
         # select closest line
         if wl_type == "Observed":
