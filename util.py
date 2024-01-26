@@ -5,7 +5,7 @@ from scipy import constants as const
 from scipy import interpolate
 from scipy.signal import filtfilt
 from numpy import fft
-#from . import transition
+import roman
 
 __all__ = [
     "interpol",
@@ -118,19 +118,16 @@ def zeeman(x, cwl, B, upperJ, lowerJ, upperG, lowerG, side=False):
     return y
 
 def get_spectroscopic_name(element, charge):
-    roman = ["I","II","III","IV","V","VI"]
     name = element.title() # ti -> Ti
-    designation = roman[charge]
+    designation = roman.toRoman(charge+1)
     return name + " " + designation
 
 def parse_spectroscopic_name(name):
-    roman = ["I","II","III","IV","V","VI"][::-1]
-    for i,num in enumerate(roman):
-        if num in name[-2:]:
-            name = name.replace(num, "").strip()
-            return name.title(),(len(roman)-i-1)
-    # if no roman number in name
-    return name.title(),0
+    name = name.strip()
+    ele = name.split(' ')[0]
+    num = name.split(' ')[1]
+    charge = roman.fromRoman(num) - 1
+    return ele.title(), charge
 
 def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0))
