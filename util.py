@@ -119,13 +119,13 @@ def zeeman(x, cwl, B, upperJ, lowerJ, upperG, lowerG, side=False):
 
 def get_spectroscopic_name(element, charge):
     name = element.title() # ti -> Ti
-    designation = roman.toRoman(charge+1)
+    designation = roman.toRoman(round(charge+1))
     return name + " " + designation
 
 def parse_spectroscopic_name(name):
     name = name.strip()
     ele = name.split(' ')[0]
-    num = name.split(' ')[1]
+    num = name.split(' ')[-1]
     charge = roman.fromRoman(num) - 1
     return ele.title(), charge
 
