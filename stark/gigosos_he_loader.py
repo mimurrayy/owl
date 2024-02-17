@@ -161,7 +161,6 @@ class gigosos_he_loader():
             table = np.loadtxt(os.path.join(folder,filename)).T
         except:
             raise SystemExit('Error: Could not find Stark broadening data tables.')
-            # sys.exit('Error: Could not find Stark broadening data tables.')
         return table
 
 

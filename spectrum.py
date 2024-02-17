@@ -23,7 +23,7 @@ class spectrum():
 
     def __init__(self, emitter_name, spectrometer=None, wl_range=None):
         self.name, self.charge = parse_spectroscopic_name(emitter_name)
-        self.spec_name = emitter_name
+        self.spec_name = get_spectroscopic_name(self.name, self.charge)
         self.emitter = self.particle = mendeleev.element(self.name)
         self.emitter.charge = self.charge
         self.emitter.m = self.emitter.mass
@@ -92,7 +92,7 @@ class spectrum():
         with thin lines. """
             
         nist_lines = self.get_linedata()
-        x, y = table_to_ident(self, nist_lines, min_int, min_Aik)
+        x, y = self.table_to_ident(nist_lines, min_int, min_Aik)
         
         return x,y
 
@@ -102,7 +102,7 @@ class spectrum():
         with thin lines. """
             
         nist_lines = self.get_linedata()
-        x, y = table_to_ident_LTE(self, nist_lines, Te, min_int, min_Aik)
+        x, y = self.table_to_ident_LTE(nist_lines, Te, min_int, min_Aik)
         
         return x,y
         
