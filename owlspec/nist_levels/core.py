@@ -4,7 +4,8 @@
 import html
 import re
 
-import astropy.io.ascii as asciitable
+# import astropy.io.ascii as asciitable
+from astropy.table import Table
 
 from astroquery.query import BaseQuery
 from astroquery.utils import async_to_sync, prepend_docstr_nosections
@@ -137,8 +138,8 @@ class NistLevelsClass(BaseQuery):
             table = _strip_blanks(pre)
             table = links_re.sub(r'\1', table)
             table = html.unescape(table)
-            table = asciitable.read(table, Reader=asciitable.FixedWidth,
-                                    data_start=1, delimiter='|')
+            table = Table.read(table, format='ascii.fixed_width', data_start=1, delimiter='|')
+
             return table
         except Exception as ex:
             self.response = response

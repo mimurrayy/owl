@@ -6,7 +6,6 @@ import os
 from .emitter import transition
 import mendeleev 
 from astroquery.nist import Nist
-from .nist_levels import NistLevels
 import astropy.units as u
 import re
 import warnings
