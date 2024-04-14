@@ -6,7 +6,7 @@ from ..util import parse_spectroscopic_name
 import numpy as np
 import mendeleev 
 from astroquery.nist import Nist
-from astroquery.nist_levels import NistLevels
+from ..nist_levels import NistLevels
 import astropy.units as u
 
 class level():
