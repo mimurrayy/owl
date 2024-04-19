@@ -15,13 +15,17 @@ class griem():
 
         if ele == "O" and round(wl, 0) == 777.:
             A,B,we,de = self.params_O777(Te)
-
+            w = self.width(ne,Te,A,we)
+            d = self.shift(ne,Te,A,we,de)
         if ele == "Ar" and (round(wl, 3) == 810.369 or round(wl, 3) == 738.398):
             A,B,we,de = self.params_Ar8104(Te)
-
-        w = self.width(ne,Te,A,we)
-        d = self.shift(ne,Te,A,we,de)
-
+            w = self.width(ne,Te,A,we)
+            d = self.shift(ne,Te,A,we,de)
+        else:
+            w = 1e-12
+            d = 1e-12
+            print("Stark broadening not implemented for this line.")
+        
         return w,d
 
 
