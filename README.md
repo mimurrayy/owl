@@ -53,7 +53,7 @@ plt.xlabel("wavelength / nm")
 plt.ylabel("normalized intensity")
 ```    
 
-<img src="https://github.com/mimurrayy/owl/assets/3911345/2f150413-2e24-49b3-978f-5cc08828cee5" width=300px>
+<img src="https://github.com/mimurrayy/owl/assets/3911345/2f150413-2e24-49b3-978f-5cc08828cee5" width=350px>
 
 
 ### van der Waals and Doppler broadening of a helium line
@@ -93,7 +93,7 @@ plt.legend()
 plt.xlabel("wavelength / nm")
 plt.ylabel("normalized intensity")
 ```
-<img src="https://github.com/mimurrayy/owl/assets/3911345/0aab3190-e863-4644-aab7-266676493d01" width=300px><img src="https://github.com/mimurrayy/owl/assets/3911345/942fc7d7-ba98-4238-a8ac-7f225a89fa24" width=300px>
+<img src="https://github.com/mimurrayy/owl/assets/3911345/0aab3190-e863-4644-aab7-266676493d01" width=350px><img src="https://github.com/mimurrayy/owl/assets/3911345/942fc7d7-ba98-4238-a8ac-7f225a89fa24" width=350px>
 
 
 ### Zeeman splitting of Ar I 706.722 nm
@@ -121,7 +121,7 @@ plt.xlabel("wavelength / nm")
 plt.ylabel("normalized intensity")
 ```
 
-<img src="https://github.com/mimurrayy/owl/assets/3911345/8eb81589-e755-48ed-8be5-d0960c9637df" width=300px>
+<img src="https://github.com/mimurrayy/owl/assets/3911345/8eb81589-e755-48ed-8be5-d0960c9637df" width=350px>
 
 
 ### Stick spectrum for the intefication of emission lines
@@ -148,7 +148,7 @@ plt.xlabel("wavelength / nm")
 plt.ylabel("relative intensity (NIST)")
 ```
 
-<img src="https://github.com/mimurrayy/owl/assets/3911345/c57b40c2-d596-40c9-bf70-101847030393" width=300px>
+<img src="https://github.com/mimurrayy/owl/assets/3911345/c57b40c2-d596-40c9-bf70-101847030393" width=350px>
 
 
 ### Simulation of complete PLTE spectrum
@@ -175,5 +175,5 @@ plt.xlabel("wavelength / nm")
 plt.ylabel("normalized intensity")
 ```
 
-<img src="https://github.com/mimurrayy/owl/assets/3911345/99354512-8a80-411b-93be-2e4d89b42ce9" width=300px>
+<img src="https://github.com/mimurrayy/owl/assets/3911345/99354512-8a80-411b-93be-2e4d89b42ce9" width=350px>
 
