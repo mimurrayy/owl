@@ -124,7 +124,7 @@ plt.ylabel("normalized intensity")
 <img src="https://github.com/mimurrayy/owl/assets/3911345/8eb81589-e755-48ed-8be5-d0960c9637df" width=400px>
 
 
-### Stick spectrum for the intefication of emission lines
+### Stick spectrum for the identification of emission lines
 
 ```python
 #!/bin/python3
@@ -151,7 +151,7 @@ plt.ylabel("relative intensity (NIST)")
 <img src="https://github.com/mimurrayy/owl/assets/3911345/c57b40c2-d596-40c9-bf70-101847030393" width=400px>
 
 
-### Simulation of complete PLTE spectrum
+### Simulation of a complete PLTE spectrum
 
 ```python
 #!/bin/python3
