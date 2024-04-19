@@ -82,18 +82,18 @@ def zeeman(x, cwl, B, upperJ, lowerJ, upperG, lowerG, side=False):
                 counter = counter + 1
                 dE = bm * B * mu * upperG - bm * B * ml * lowerG
                 E0 = const.h * const.c / (cwl * 1e-9)
-                if dE != 0:
-                    wl = cwl * (dE/E0 + 1)
-                else:
-                    wl = cwl
+                wl = cwl * (dE/E0 + 1)
+
                 # intensity acording to Condon,Shortley Page 387
                 if J_u == J_l: # J -> J transition
                     if mu == ml: # pi transition with delta M = 0
                         intensity = mu**2
                         if side:
                             intensity = 0
-                    else: # sigma transistion with delta M = +-1
+                    if mu == (ml + 1): # M -> M - 1
                         intensity = 0.25 * (J_u + mu) * (J_u - mu + 1)
+                    if mu == (ml - 1): # M -> M + 1
+                        intensity = 0.25 * (J_u - mu) * (J_u + mu + 1)
                 if J_u == (J_l - 1): # J -> J + 1 transition
                     if mu == ml:
                         intensity = (J_u + 1)**2 - mu**2
