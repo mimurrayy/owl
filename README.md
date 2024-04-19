@@ -3,7 +3,7 @@
 Library to calculate optical emission spectra from atoms as well as line shapes.
 
 ## Installation
-Owl is on [https://pypi.org/project/owlspec/](pypi) and can simply be installed as any python package:
+Owl is on [pypi](https://pypi.org/project/owlspec/) and can simply be installed as any python package:
 ```
 pip install owlspec
 ```
@@ -139,7 +139,8 @@ spec = owl.spectrum('Ti I', wl_range=[310,415])
 spec2 = owl.spectrum('Ar II', wl_range=[310,415])
 
 # simulate spectra with a given line braodening (w, mu) and normalized to the maximum
-x,y = spec.get_ident_spectrum(min_int=200, min_Aik=1e6) # filtered for relative intensity and Aik value
+# min_int and min_Aik allow filtering for NIST-reported relative intensity and Aik value
+x,y = spec.get_ident_spectrum(min_int=200, min_Aik=1e6) 
 x2,y2 = spec2.get_ident_spectrum() 
 plt.plot(x,y, '-', label="Ti I")
 plt.plot(x2,y2, '-', label="Ar II")
