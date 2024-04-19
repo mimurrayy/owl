@@ -56,7 +56,7 @@ class level():
         self.conf = row['Configuration'] # configuration and term string
         
         if 'Landé' in nist_levels.keys():
-            self.G = nist_levels[level_idx]['Landé'] #Lande g factor
+            self.G = float(nist_levels[level_idx]['Landé']) #Lande g factor
         else:
             self.G = None
         
