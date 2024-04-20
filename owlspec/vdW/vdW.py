@@ -2,8 +2,6 @@
 
 import numpy as np
 from ..util import *
-from .. import emitter
-import mendeleev 
 from scipy import constants as const
 
 class vdW():

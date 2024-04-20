@@ -3,7 +3,6 @@ import numpy as np
 from scipy.signal import fftconvolve as convolve
 from scipy import constants as const
 from scipy import interpolate
-#from . import emitter
 from .util import zeeman, parse_spectroscopic_name, doppler_thompson,\
                         doppler_maxwell, gauss_function, psd_voigt
 from . import stark

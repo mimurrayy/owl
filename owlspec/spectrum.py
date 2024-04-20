@@ -1,9 +1,6 @@
 #!/bin/python3
 import numpy as np
-from scipy import constants as const
 from .util import *
-import os
-from .emitter import transition
 import mendeleev 
 from astroquery.nist import Nist
 import astropy.units as u
