@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/267619393.svg)](https://zenodo.org/doi/10.5281/zenodo.11002438)
+
 # owl spectroscopic library
   
 Library to calculate optical emission spectra from atoms as well as line shapes.
@@ -81,7 +83,7 @@ spec = owl.spectrum('Cr I', wl_range=[300,500])
 y = spec.get_LTE_spectrum(x, Te=3, width=0.2, mu=0.5, norm=True) 
 ```
 
-This capabilities can be used to quickly identify unknown lines in measurements or fit measured spectra to obtain an excitation temperature in cases where Boltzmann plots are difficult due to insufficient resolution.
+This capabilities can be used to quickly identify unknown lines in measurements or fit measured spectra to obtain an excitation temperature in cases where Boltzmann plots are difficult due to insufficient resolution. Please note that the calculated spectra are in units proportional to photons/second, _not_ W/(sr cm²).
 
 
 ## Examples
@@ -251,4 +253,18 @@ plt.ylabel("normalized intensity")
 ```
 
 <img src="https://github.com/mimurrayy/owl/assets/3911345/99354512-8a80-411b-93be-2e4d89b42ce9" width=400px>
+
+
+
+## How to cite
+The library has a DOI provided by Zenodo and can be cited similar to: 
+- Julian Held: (2024) owl spectroscopic library (v0.2.0) [https://doi.org/10.5281/zenodo.11002439](https://doi.org/10.5281/zenodo.11002439)
+
+The library relies on data from the NIST atomic spectra database, which can be cited as:
+- Kramida, A., Ralchenko, Yu., Reader, J. and [NIST ASD Team](https://physics.nist.gov/PhysRefData/ASD/index.html#Team) (2023). _NIST Atomic Spectra Database_ (version 5.11). Available: [https://physics.nist.gov/asd](https://physics.nist.gov/asd) [Sat Apr 20 2024]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: [https://doi.org/10.18434/T4W30F](https://doi.org/10.18434/T4W30F)
+
+Up to date citation information for NIST ASD is provided here: https://physics.nist.gov/PhysRefData/ASD/Html/verhist.shtml
+
+When using owl for line broadening calculations, please make sure to cite the sources of the underlying data listed in this readme. 
+
 
