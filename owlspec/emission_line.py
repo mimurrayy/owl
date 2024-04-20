@@ -83,7 +83,7 @@ class emission_line():
 
 
 
-    def get_profile(self, x, A = 1, instr_func = None, w = None, mu = 0.0,
+    def get_profile(self, x, A = 1, instr_func = None, w = None, mu = None,
             shift = False, wl=None, T = None, Eb = None, gamma = None, B = None,
             N = None, ne = None, Te = None, pert = None):
 
