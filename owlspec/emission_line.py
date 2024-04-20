@@ -170,8 +170,8 @@ class emission_line():
 
         # We let the instrumental profile determine center position.
         # ALL other components are shifted to the middle!
-        if self.instr:
-            instrumental_profile = self.instr(x, wl+s)
+        if instr_func:
+            instrumental_profile = instr_func(x, wl+s)
         elif w:   
             instrumental_profile = psd_voigt(x, wl+s, w, mu)
         else:
