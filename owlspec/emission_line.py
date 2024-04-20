@@ -174,7 +174,7 @@ class emission_line():
         elif w:   
             instrumental_profile = psd_voigt(x, wl+s, w, mu)
         else:
-            instrumental_profile = gauss_function(x, wl+s, x[0]-x[1])
+            instrumental_profile = gauss_function(x, wl+s, x[1]-x[0])
         
         self.profiles['instrument'] = instrumental_profile/np.max(instrumental_profile)
 
