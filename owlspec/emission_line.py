@@ -5,7 +5,7 @@ from scipy import constants as const
 from scipy import interpolate
 #from . import emitter
 from .util import zeeman, parse_spectroscopic_name, doppler_thompson,\
-                        doppler_maxwell, interpol, gauss_function, psd_voigt
+                        doppler_maxwell, gauss_function, psd_voigt
 from . import stark
 from . import vdW
 import mendeleev 
@@ -129,6 +129,7 @@ class emission_line():
         s = 0 # lineshift in nm
         fine_x = interpolate.make_interp_spline(np.linspace(0,1,len(x)), x)
         x = fine_x(np.linspace(0,1,len(x)*50)) # upsample x axis
+        self.profiles['x'] = x
 
         resolution = abs((x[-1]-x[0])/(len(x)-1))
         middle_wl = x[int(len(x)/2)-1]
@@ -139,30 +140,30 @@ class emission_line():
                 thompson = doppler_thompson(x, middle_wl, Eb, self.m, self.side)
                 maxwell = doppler_maxwell(x, middle_wl, T, self.m)
                 doppler = gamma*maxwell + (1-gamma)*thompson
-                self.profiles['Doppler'] = doppler
+                self.profiles['Doppler'] = doppler/np.max(doppler)
                 components.append(doppler)
             else:
                 maxwell = doppler_maxwell(x, middle_wl, T, self.m)
-                self.profiles['Doppler'] = maxwell
+                self.profiles['Doppler'] = maxwell/np.max(maxwell)
                 components.append(maxwell)
         if Eb and not T:
             thompson = doppler_thompson(x, middle_wl, Eb, self.m, self.side)
-            self.profiles['Doppler'] = thompson
+            self.profiles['Doppler'] = thompson/np.max(thompson)
             components.append(thompson)
         if B:
             t = self.transition
             zeeman_pattern = zeeman(x, middle_wl, B, t.upperJ, t.lowerJ, t.upperG, t.lowerG)/resolution
-            self.profiles['Zeeman'] = zeeman_pattern
+            self.profiles['Zeeman'] = zeeman_pattern/np.max(zeeman_pattern)
             components.append(zeeman_pattern)
         if ne:
             this_stark = stark.stark(self.transition)
             stark_profile = this_stark.get_profile(x, ne, Te, pert)
-            self.profiles['Stark'] = stark_profile
+            self.profiles['Stark'] = stark_profile/np.max(stark_profile)
             components.append(stark_profile)
         if N:
             this_vdW = vdW.vdW(self.transition, pert=pert)
             vdW_profile = this_vdW.get_profile(x, T, N)
-            self.profiles['vdW'] = vdW_profile
+            self.profiles['vdW'] = vdW_profile/np.max(vdW_profile)
             components.append(vdW_profile)
             if shift:
                 s = s + this_vdW.get_shift(x, N, T)
@@ -176,7 +177,7 @@ class emission_line():
         else:
             instrumental_profile = gauss_function(x, wl+s, x[0]-x[1])
         
-        self.profiles['instrument'] = instrumental_profile
+        self.profiles['instrument'] = instrumental_profile/np.max(instrumental_profile)
 
         profile = instrumental_profile
         for component in components:
