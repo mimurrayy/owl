@@ -195,7 +195,9 @@ class spectrum():
                 rel_int = re.sub(r'[^\d.]+', '', rel_int)
                 wl = re.sub(r'[^\d.]+', '', wl) # removes non-number chars
                 try: # conversion to float can still fail...
-                    rel_int = float(rel_int)
+                    rel_int = str(line['Rel.'])
+                    rel_int = re.sub(r'[^\d.]+', '', rel_int)
+                    rel_int =  float(rel_int)
                     wl = float(wl)
                     if min_Aik > 0:
                         with warnings.catch_warnings(): # ignore masked element warning
@@ -242,7 +244,12 @@ class spectrum():
                 if min_int > 0:
                     with warnings.catch_warnings(): # ignore masked element warning
                         warnings.simplefilter("ignore", category=UserWarning)
-                        rel_int =  float(line['Rel.'])
+                        rel_int = str(line['Rel.'])
+                        rel_int = re.sub(r'[^\d.]+', '', rel_int)
+                        if len(rel_int) > 0:
+                            rel_int = float(rel_int)
+                        else:
+                            rel_int = 0
                 else:
                     rel_int = 1
 
