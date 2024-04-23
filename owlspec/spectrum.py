@@ -1,9 +1,6 @@
 #!/bin/python3
 import numpy as np
-from scipy import constants as const
 from .util import *
-import os
-from .emitter import transition
 import mendeleev 
 from astroquery.nist import Nist
 import astropy.units as u
@@ -12,15 +9,15 @@ import warnings
 
 
 class spectrum():
-    """ Holds information about a complete emission spectrum of the given
-    particles in the wavelength range defined by <wl_range> or the
-    owl.spectrometer object.
+    """ Calculates complete or partial emission spectra for the emitter 
+    specified by <emitter name> inr the wavelength range defined by 
+    <wl_range>.
 
-    particles: list of owl.emitter.particle objects
-    spectrometer: owl.spectrometer object
-    wl_range: tuple or list of lower and upper wavelength of the spectrum"""
+    <emitter_name>: Name of the emitting species in spectroscopic notation,
+    e.g. "Ar I" for argon neutrals or Fe IV for tripply charged iron.
+    <wl_range>: Tuple of lower and upper wavelength of the spectrum."""
 
-    def __init__(self, emitter_name, spectrometer=None, wl_range=None):
+    def __init__(self, emitter_name, wl_range=None):
         self.name, self.charge = parse_spectroscopic_name(emitter_name)
         self.spec_name = get_spectroscopic_name(self.name, self.charge)
         self.emitter = self.particle = mendeleev.element(self.name)
@@ -29,13 +26,8 @@ class spectrum():
         self.emitter.Ei = self.emitter.ionenergies[1]
         self.charge = self.emitter.charge
         
-        self.spectrometer = spectrometer
         self.wl_range = wl_range
         self.linedata = None
-        if spectrometer and not wl_range:
-            if spectrometer.x is not None:
-                self.wl_range = (spectrometer.x[0],spectrometer.x[-1])
-
 
 
     def get_linedata(self):
@@ -47,23 +39,16 @@ class spectrum():
             wl_high = 9999
             
         nist_lines = Nist.query(wl_low*u.nm, wl_high*u.nm, 
-                                linename=self.spec_name, wavelength_type='vac+air')
+                            linename=self.spec_name, wavelength_type='vac+air')
 
         return nist_lines
 
 
-    def get_spectrum(self,x=None, width=0.02, mu=0.2, min_int=-1, min_Aik=-1):
+    def get_spectrum(self, x, width=0.02, mu=0.2, min_int=-1, min_Aik=-1):
         """ Return simulated spectrum. Lines are pseudo Voigt with
         the set width (FWHM) in nm and form parameter mu (0 = Gauss)  """
-        try:
-            if not x:
-                x = self.spectrometer.x
-        except:
-            x = x
-            
         nist_lines = self.get_linedata()
         spectrum = self.table_to_spec_rel(x, nist_lines, width, mu, min_int, min_Aik)
-
         return spectrum
 
 
@@ -74,11 +59,6 @@ class spectrum():
         parameter mu (0 = Gauss).
         Set norm=True to normalize the intensity to 1 for easier fitting.
         """
-        try:
-            if not x:
-                x = self.spectrometer.x
-        except:
-            x = x
         nist_lines = self.get_linedata()
         spectrum = self.table_to_spec_LTE(x, nist_lines, Te, width, mu, min_int, min_Aik)
         if norm == True:
@@ -89,20 +69,16 @@ class spectrum():
     def get_ident_spectrum(self, min_int=-1, min_Aik=-1):
         """ Return simulated spectrum. Marks the wavelenght position
         with thin lines. """
-            
         nist_lines = self.get_linedata()
         x, y = self.table_to_ident(nist_lines, min_int, min_Aik)
-        
         return x,y
 
 
     def get_ident_spectrum_LTE(self, Te, min_int=-1, min_Aik=-1):
         """ Return simulated spectrum. Marks the wavelenght position
-        with thin lines. """
-            
+        with thin lines. """   
         nist_lines = self.get_linedata()
         x, y = self.table_to_ident_LTE(nist_lines, Te, min_int, min_Aik)
-        
         return x,y
         
 
@@ -176,7 +152,8 @@ class spectrum():
                     if rel_int > min_int and Aik > min_Aik:
                         profile = rel_int*psd_voigt_function(x, wl, width, mu)
                         spectrum = spectrum + profile
-                except:
+                except Exception as err:
+                    print(err)
                     pass
                 
         return spectrum

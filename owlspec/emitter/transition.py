@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import os
 import numpy as np
 import re
 from ..util import parse_spectroscopic_name, get_spectroscopic_name
