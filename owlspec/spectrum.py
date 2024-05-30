@@ -38,8 +38,11 @@ class spectrum():
             wl_low = 0
             wl_high = 9999
             
-        nist_lines = Nist.query(wl_low*u.nm, wl_high*u.nm, 
-                            linename=self.spec_name, wavelength_type='vac+air')
+        try:
+            nist_lines = Nist.query(wl_low*u.nm, wl_high*u.nm, 
+                                linename=self.spec_name, wavelength_type='vac+air')
+        except:
+            return []
 
         return nist_lines
 
