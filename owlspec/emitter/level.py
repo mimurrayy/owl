@@ -4,21 +4,19 @@ import os
 import re
 from ..util import parse_spectroscopic_name
 import numpy as np
-import mendeleev 
-from astroquery.nist import Nist
-from ..nist_levels import NistLevels
-import astropy.units as u
 
 class level():
     def __init__(self, emitter_name, energy, debug=False):
         self.name, self.charge = parse_spectroscopic_name(emitter_name)
         self.spec_name = emitter_name
-        self.emitter = self.particle = mendeleev.element(self.name)
+        from mendeleev import element
+        self.emitter = self.particle = element(self.name)
         self.emitter.charge = self.charge
         self.emitter.m = self.emitter.mass
         self.emitter.Ei = self.emitter.ionenergies[1]
         self.charge = self.emitter.charge
         
+        from ..nist_levels import NistLevels
         nist_levels = NistLevels.query(linename=emitter_name)
 
         # clean up the energy column from NIST levels (e.g. remove '[')
@@ -78,6 +76,8 @@ class level():
         non_decimal = re.compile(r'[^\d.]+')
 
         # Load data tables from NIST (+- 1 nm around requested wl)
+        from astroquery.nist import Nist # import here for startup perfromance
+        import astropy.units as u
         nist_lines = Nist.query(1*u.nm, 99999*u.nm, 
                                 linename=self.spec_name, wavelength_type='vac+air')
 

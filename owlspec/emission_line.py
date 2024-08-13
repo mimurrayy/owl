@@ -7,7 +7,6 @@ from .util import zeeman, parse_spectroscopic_name, doppler_thompson,\
                         doppler_maxwell, gauss_function, psd_voigt
 from . import stark
 from . import vdW
-import mendeleev 
 
 class emission_line():
     def __init__(self, transition, wl, instr_func = None, w = None, mu = 0.0,
@@ -71,7 +70,8 @@ class emission_line():
 
         if pert:          
             self.pert_name, self.pert_charge = parse_spectroscopic_name(pert)
-            self.pert = mendeleev.element(self.pert_name)
+            from mendeleev import element
+            self.pert = element(self.pert_name)
             self.pert.charge = self.pert_charge
             self.pert.m = self.pert.mass
             self.pert.Ei = self.pert.ionenergies[1]
@@ -113,7 +113,8 @@ class emission_line():
         
         elif pert:
             self.pert_name, self.pert_charge = parse_spectroscopic_name(pert)
-            self.pert = mendeleev.element(self.pert_name)
+            from mendeleev import element
+            self.pert = element(self.pert_name)
             self.pert.charge = self.pert_charge
             self.pert.m = self.pert.mass
             self.pert.Ei = self.pert.ionenergies[1]

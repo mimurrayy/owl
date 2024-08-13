@@ -1,9 +1,6 @@
 #!/bin/python3
 import numpy as np
 from .util import *
-import mendeleev 
-from astroquery.nist import Nist
-import astropy.units as u
 import re
 import warnings
 
@@ -20,7 +17,8 @@ class spectrum():
     def __init__(self, emitter_name, wl_range=None):
         self.name, self.charge = parse_spectroscopic_name(emitter_name)
         self.spec_name = get_spectroscopic_name(self.name, self.charge)
-        self.emitter = self.particle = mendeleev.element(self.name)
+        from mendeleev import element
+        self.emitter = self.particle = element(self.name)
         self.emitter.charge = self.charge
         self.emitter.m = self.emitter.mass
         self.emitter.Ei = self.emitter.ionenergies[1]
@@ -39,6 +37,8 @@ class spectrum():
             wl_high = 9999
             
         try:
+            from astroquery.nist import Nist
+            import astropy.units as u
             nist_lines = Nist.query(wl_low*u.nm, wl_high*u.nm, 
                                 linename=self.spec_name, wavelength_type='vac+air')
         except:

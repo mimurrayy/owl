@@ -4,9 +4,6 @@ import numpy as np
 import re
 from ..util import parse_spectroscopic_name, get_spectroscopic_name
 from .level import level
-import mendeleev 
-from astroquery.nist import Nist
-import astropy.units as u
 
 class transition():
     def __init__(self, emitter_name, wavelength, wl_type="Observed", debug=False):
@@ -21,7 +18,8 @@ class transition():
         
         self.name, self.charge = parse_spectroscopic_name(emitter_name)
         self.spec_name = get_spectroscopic_name(self.name, self.charge)
-        self.emitter = self.particle = mendeleev.element(self.name)
+        from mendeleev import element
+        self.emitter = self.particle = element(self.name)
         self.emitter.charge = self.charge
         self.emitter.m = self.emitter.mass
         self.emitter.Ei = self.emitter.ionenergies[1]
@@ -30,6 +28,8 @@ class transition():
         non_decimal = re.compile(r'[^\d.]+')
                 
         # Load data tables from NIST (+- 1 nm around requested wl)
+        from astroquery.nist import Nist
+        import astropy.units as u
         nist_lines = Nist.query((wavelength-1)*u.nm, (wavelength+1)*u.nm, 
                                 linename=self.spec_name, wavelength_type='vac+air')
         
