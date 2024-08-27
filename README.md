@@ -184,7 +184,7 @@ transition = owl.emitter.transition("Ar I", cw)
 line = owl.emission_line(transition, cw, instr_func=instr)
 
 
-y1 = line.get_profile(x, B = 0.2) # Now only Zeeman and Doppler
+y1 = line.get_profile(x, B = 0.2)
 y2 = line.get_profile(x, B = 0.8)
 
 plt.plot(x,y1/np.max(y1), label="B = 0.1 T")
@@ -258,7 +258,7 @@ plt.ylabel("normalized intensity")
 
 ## How to cite
 The library has a DOI provided by Zenodo and can be cited similar to: 
-- Julian Held: (2024) owl spectroscopic library (v0.2.0) [https://doi.org/10.5281/zenodo.11002439](https://doi.org/10.5281/zenodo.11002439)
+- Julian Held: (2024) owl spectroscopic library (v0.2.3) [https://doi.org/10.5281/zenodo.11002438](https://doi.org/10.5281/zenodo.11002438)
 
 The library relies on data from the NIST atomic spectra database, which can be cited as:
 - Kramida, A., Ralchenko, Yu., Reader, J. and [NIST ASD Team](https://physics.nist.gov/PhysRefData/ASD/index.html#Team) (2023). _NIST Atomic Spectra Database_ (version 5.11). Available: [https://physics.nist.gov/asd](https://physics.nist.gov/asd) [Sat Apr 20 2024]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: [https://doi.org/10.18434/T4W30F](https://doi.org/10.18434/T4W30F)
