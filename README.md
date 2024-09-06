@@ -99,20 +99,19 @@ import matplotlib.pyplot as plt
 import owlspec as owl
 
 cw = central_wavelength = 486
-x = np.linspace(cw-0.5, cw+0.5, 3000)
+x = np.linspace(cw-4, cw+6.5, 3000)
 
-transition = owl.emitter.transition("H I", cw) # Hydrogen atom emission, H beta
-# H I emitters are 6000 K hot, and sourrounded by argon neutrals and ions 
-# and 6000 K hot electrons
-line = owl.emission_line(transition, cw, pert="Ar I", T=6000, Te=6000)
-# setting T siwtches on Doppler broadening
-# Te and the pert will be used for Stark broadening below
+transition1 = owl.emitter.transition("H I", cw)# Hydrogen atom emission, H beta
+# H I emitters are 1000 K hot, and sourrounded by argon neutrals and ions 
+# and 30000 K hot electrons
+line1 = owl.emission_line(transition1, cw, pert="Ar I", T=1000, Te=30000)
+# setting T switches on Doppler broadening
+# Te and the perturber will be used for Stark broadening below
 
-plt.figure() # Show influence of Stark broadening
-x = np.linspace(cw-5, cw+7.5, 3000)
-y1 = line.get_profile(x, ne=5e21, N=1e20)
-y2 = line.get_profile(x, ne=2e22, N=1e20)
-y3 = line.get_profile(x, ne=5e22, N=1e20)
+plt.figure()
+y1 = line1.get_profile(x, ne=5e21, ng=1e20) # ng for van der Waals broadening..
+y2 = line1.get_profile(x, ne=2e22, ng=1e20) # ..can be set here or in emission_line
+y3 = line1.get_profile(x, ne=5e22, ng=1e20)
 
 plt.plot(x,y1/np.max(y1), label=r"n$_e$ = $5 \times 10^{21}$ m$^{-3}$")
 plt.plot(x,y2/np.max(y2), label=r"n$_e$ = $2 \times 10^{22}$ m$^{-3}$")
@@ -121,8 +120,7 @@ plt.legend()
 plt.xlabel("wavelength / nm")
 plt.ylabel("normalized intensity")
 ```    
-
-<img src="https://github.com/mimurrayy/owl/assets/3911345/2f150413-2e24-49b3-978f-5cc08828cee5" width=400px>
+<img src="https://github.com/user-attachments/assets/438e9602-8020-46d0-afc1-0b69697638ed" width=400px>
 
 
 ### van der Waals and Doppler broadening of a helium line
@@ -133,17 +131,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import owlspec as owl
 
-plt.figure() # Show influence of van der Waals broadening
+plt.figure() # van der Waals broadening
 cw = central_wavelength = 501.567
-transition = owl.emitter.transition("He I", cw) # Helium atom emission
+transition1 = owl.emitter.transition("He I", cw) # Helium atom emission
 x = np.linspace(cw-0.1, cw+0.15, 3000)
 
 # He I emitters are 500 K hot, and sourrounded by argon neutrals
-line = owl.emission_line(transition, cw, pert="Ar I", T=500)
+line = owl.emission_line(transition1, cw, pert="Ar I", T=500)
 
-y1 = line.get_profile(x, N=1e24) # N is the neutral density of the perturber (Ar)
-y2 = line.get_profile(x, N=5e24) # setting N switches on vdW broadening
-y3 = line.get_profile(x, N=1e25) # T (defined as 500 above) siwtches on Doppler
+y1 = line.get_profile(x, ng=1e24) # ng is the neutral density of the perturber (Ar)
+y2 = line.get_profile(x, ng=5e24) # setting ng switches on vdW broadening
+y3 = line.get_profile(x, ng=1e25) # T (defined as 500 above) siwtches on Doppler
 plt.plot(x,y1/np.max(y1), label=r"n$_g$ = $1 \times 10^{24}$ m$^{-3}$")
 plt.plot(x,y2/np.max(y2), label=r"n$_g$ = $5 \times 10^{24}$ m$^{-3}$")
 plt.plot(x,y3/np.max(y3), label=r"n$_g$ = $1 \times 10^{25}$ m$^{-3}$")
@@ -152,8 +150,8 @@ plt.xlabel("wavelength / nm")
 plt.ylabel("normalized intensity")
 
 
-plt.figure() # Show influence of Doppler broadening
-y1 = line.get_profile(x, T=1000) # Doppler broadening
+plt.figure() # Doppler broadening
+y1 = line.get_profile(x, T=1000) # Setting T switches on Doppler broadening
 y2 = line.get_profile(x, T=10000)
 
 plt.plot(x,y1/np.max(y1), label="T$_g$ = 1000 K")
@@ -162,11 +160,11 @@ plt.legend()
 plt.xlabel("wavelength / nm")
 plt.ylabel("normalized intensity")
 ```
-<img src="https://github.com/mimurrayy/owl/assets/3911345/0aab3190-e863-4644-aab7-266676493d01" width=400px><img src="https://github.com/mimurrayy/owl/assets/3911345/942fc7d7-ba98-4238-a8ac-7f225a89fa24" width=400px>
+
+<img src="https://github.com/mimurrayy/owl/assets/3911345/0aab3190-e863-4644-aab7-266676493d01" width=400px><img src="https://github.com/user-attachments/assets/918085e6-7256-4122-9084-357030170310" width=400px>
 
 
 ### Zeeman splitting of Ar I 706.722 nm
-
 
 ```python
 #!/bin/python3
@@ -187,14 +185,141 @@ line = owl.emission_line(transition, cw, instr_func=instr)
 y1 = line.get_profile(x, B = 0.2)
 y2 = line.get_profile(x, B = 0.8)
 
-plt.plot(x,y1/np.max(y1), label="B = 0.1 T")
+plt.plot(x,y1/np.max(y1), label="B = 0.2 T")
 plt.plot(x,y2/np.max(y2), label="B = 0.8 T")
 plt.legend()
 plt.xlabel("wavelength / nm")
 plt.ylabel("normalized intensity")
 ```
 
-<img src="https://github.com/mimurrayy/owl/assets/3911345/8eb81589-e755-48ed-8be5-d0960c9637df" width=400px>
+<img src="https://github.com/user-attachments/assets/066727ec-ef88-4e58-9ba2-b61e35e0eec0" width=400px>
+
+### Using pyplas plasma objects
+
+ Here we use [pyplas](https://github.com/mimurrayy/pyplas) plasma objects which allow us to describe a more complex physical situation, i.e. where species, densities and temperatures differ between emitting species, the background gas (affecting vdW) and the ions (affecting Stark).
+
+```python
+#!/bin/python3
+import numpy as np
+import matplotlib.pyplot as plt
+import owlspec as owl
+import pyplas
+
+n0 = 5e21 # Electron/Ion density
+electrons = pyplas.electrons(n0, T=35000) # 3 eV electrons
+ions = pyplas.ions("Ar", n0, T=1000) # 1000 K argon ions 
+
+# Background gas is He, can set any two of n, T and P
+neutrals = pyplas.neutrals("He", P=800, T=500) 
+plasma = pyplas.plasma(electrons, ions, neutrals) # create plasma object holding all of the information
+
+cw = central_wavelength = 486
+transition = owl.emitter.transition("H I", cw)
+
+# T is here now only the emitter temperature, perturber temps are set by plasma
+line1 = owl.emission_line(transition, cw, plasma=plasma, T=1000)
+
+x = np.linspace(cw-4, cw+6.5, 3000)
+y1 = line1.get_profile(x)
+plasma.ne = 2e22 # the plasma object stays connected to the line object.
+y2 = line1.get_profile(x)
+plasma.ne = 5e22
+y3 = line1.get_profile(x)
+
+plt.figure()
+plt.plot(x,y1/np.max(y1), label=r"n$_e$ = $5 \times 10^{21}$ m$^{-3}$")
+plt.plot(x,y2/np.max(y2), label=r"n$_e$ = $2 \times 10^{22}$ m$^{-3}$")
+plt.plot(x,y3/np.max(y3), label=r"n$_e$ = $5 \times 10^{22}$ m$^{-3}$")
+plt.legend()
+plt.xlabel("wavelength / nm")
+plt.ylabel("normalized intensity")
+```
+
+<img src="https://github.com/user-attachments/assets/850c566b-e504-4124-9a97-d54aedee3286" width=400px>
+
+
+### Inspecting the different line broadening contributions
+After the calculation of an individual emission line profile is perfromed, the different components are saved to a 'profiles' dictonary in the emission_line object.
+You can access these profiles to ensure that the individual calculations are perfromed correctly and to judge the contribution of the seperate mechanisms.
+
+```python
+#!/bin/python3
+import numpy as np
+import matplotlib.pyplot as plt
+import owlspec as owl
+import pyplas
+
+n0 = 5e20 # Electron/Ion density
+electrons = pyplas.electrons(n0, T=35000) # 3 eV electrons
+ions = pyplas.ions("Ar", n0, T=1000) # 1000 K argon ions 
+neutrals = pyplas.neutrals("Xe", P=30000, T=300) 
+plasma = pyplas.plasma(electrons, ions, neutrals)
+
+cw = central_wavelength = 486
+
+transition = owl.emitter.transition("H I", cw)
+line1 = owl.emission_line(transition, cw, plasma=plasma, T=5000)
+
+x = np.linspace(cw-0.2, cw+0.2, 3000)
+complete = line1.get_profile(x) # run the calculation ...
+Stark = line1.profiles['Stark'] # ... now the different components are saved in the 'profiles' dict in the line object
+fine_x =  line1.profiles['x'] # internally, a finer x grid is used, so you need that for plotting
+Doppler = line1.profiles['Doppler']
+vdW = line1.profiles['vdW']
+# not shown here: Instrumental profile accessed with line1.profiles['instrument']
+
+plt.figure()
+plt.plot(x,complete/np.max(complete), label='All')
+plt.plot(fine_x,Stark/np.max(Stark), '--', label='Stark')
+plt.plot(fine_x,Doppler/np.max(Doppler), '--', label='Doppler')
+plt.plot(fine_x,vdW/np.max(vdW), '--', label='van der Waals')
+plt.legend()
+plt.xlabel("wavelength / nm")
+plt.ylabel("normalized intensity")
+```
+
+<img src="https://github.com/user-attachments/assets/2de7bdca-f7ad-4cbb-8716-690aa5c21a4c" width=400px>
+
+### Switching broadening mechanisms on/off
+Instead of relying on automatic decisions made by the library, you can also decide to explicitly switching broadening mechanisms on or off.
+The advantage is that owlspec will then notify you if you forgot to supply information which would have otherwise just silently disabled a mechanism.
+
+```python
+#!/bin/python3
+import numpy as np
+import matplotlib.pyplot as plt
+import owlspec as owl
+import pyplas
+
+n0 = 5e20 # Electron/Ion density
+electrons = pyplas.electrons(n0, T=35000) # 3 eV electrons
+ions = pyplas.ions("Ar", n0, T=1000) # 1000 K argon ions 
+neutrals = pyplas.neutrals("Xe", P=30000, T=300) 
+plasma = pyplas.plasma(electrons, ions, neutrals)
+
+cw = central_wavelength = 486
+
+transition = owl.emitter.transition("H I", cw)
+line1 = owl.emission_line(transition, cw, plasma=plasma, T=5000)
+
+x = np.linspace(cw-0.2, cw+0.2, 3000)
+complete = line1.get_profile(x, Stark_on=True, Doppler_on=True, Instr_on=True, vdW_on=True)
+vdW = line1.get_profile(x, Stark_on=False, Doppler_on=False, Instr_on=False, vdW_on=True)
+Stark = line1.get_profile(x, Stark_on=True, Doppler_on=False, Instr_on=False, vdW_on=False)
+Doppler = line1.get_profile(x, Stark_on=False, Doppler_on=True, Instr_on=False, vdW_on=False)
+
+
+plt.figure()
+plt.plot(x,complete/np.max(complete), label='All')
+plt.plot(x,Stark/np.max(Stark), '--', label='Stark')
+plt.plot(x,Doppler/np.max(Doppler), '--', label='Doppler')
+plt.plot(x,vdW/np.max(vdW), '--', label='van der Waals')
+plt.legend()
+plt.xlabel("wavelength / nm")
+plt.ylabel("normalized intensity")
+```
+
+<img src="https://github.com/user-attachments/assets/2de7bdca-f7ad-4cbb-8716-690aa5c21a4c" width=400px>
 
 
 ### Stick spectrum for the identification of emission lines
@@ -258,7 +383,7 @@ plt.ylabel("normalized intensity")
 
 ## How to cite
 The library has a DOI provided by Zenodo and can be cited similar to: 
-- Julian Held: (2024) owl spectroscopic library (v0.2.3) [https://doi.org/10.5281/zenodo.11002438](https://doi.org/10.5281/zenodo.11002438)
+- Julian Held: (2024) owl spectroscopic library (v0.3.0) [https://doi.org/10.5281/zenodo.11002438](https://doi.org/10.5281/zenodo.11002438)
 
 The library relies on data from the NIST atomic spectra database, which can be cited as:
 - Kramida, A., Ralchenko, Yu., Reader, J. and [NIST ASD Team](https://physics.nist.gov/PhysRefData/ASD/index.html#Team) (2023). _NIST Atomic Spectra Database_ (version 5.11). Available: [https://physics.nist.gov/asd](https://physics.nist.gov/asd) [Sat Apr 20 2024]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: [https://doi.org/10.18434/T4W30F](https://doi.org/10.18434/T4W30F)
