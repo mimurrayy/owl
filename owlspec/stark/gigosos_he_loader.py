@@ -49,6 +49,7 @@ class gigosos_he_loader():
         if pert:
            emitter_m = self.transition.particle.m
            reduced_m = (emitter_m * pert.m)/(emitter_m + pert.m)
+           reduced_m = reduced_m/const.u
            mu = reduced_m * Te/pert.T
         else:
            mu = 1

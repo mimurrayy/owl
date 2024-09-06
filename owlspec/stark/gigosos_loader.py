@@ -37,11 +37,12 @@ class gigosos_loader():
 
     def load(self, ne, Te, pert):
         r0 = (3/(4 * np.pi * ne))**(1/3)
-        rD = ((const.epsilon_0 * const.eV * Te)/(ne * const.e**2))**(1/2)
+        rD = ((const.epsilon_0 * const.k * Te)/(ne * const.e**2))**(1/2)
         rho = r0/rD
         if pert:
            emitter_m = self.transition.particle.m
            reduced_m = (emitter_m * pert.m)/(emitter_m + pert.m)
+           reduced_m = reduced_m/const.u
            mu = reduced_m * Te/pert.T
         else:
            mu = 1

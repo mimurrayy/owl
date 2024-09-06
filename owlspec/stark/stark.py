@@ -12,6 +12,19 @@ class stark():
         self.fast = False
         self.pert = ion_pert
 
+    def supported(self):
+        wl = self.transition.wl
+        x = np.linspace(wl-10, wl+10, 10000)
+        ne = 2e21
+        profile = None
+        try:
+            profile = self.get_profile(x, ne, Te=30000, pert=None)
+        except:
+            return False
+        if profile is not None:
+            return True
+        else:
+            return False
 
     def get_profile(self,x, ne, Te=None, pert=None):
         middle_wl = x[int(len(x)/2)]
@@ -64,11 +77,13 @@ class stark():
                 return y
 
         ################ Others: Griem ##########
-        if ele == "O" or "Ar":
+        if ele == "O" or ele == "Ar":
             this_griem = griem(self.transition)
             w,d = this_griem.get_width_shift(ne, Te)
             # shift is ignored for now
-            return lorentz_function(x,middle_wl,w)
+            if w>0:
+                return lorentz_function(x,middle_wl,w)
+
 
 
     def get_width(self, ne, Te=None, pert=None):

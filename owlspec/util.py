@@ -11,9 +11,6 @@ __all__ = [
     "interpol",
     "doppler_maxwell",
     "gauss_function","gauss",
-    "doppler_thompson",
-    "thompson_function","thompson",
-    "thompson_side",
     "m_j",
     "zeeman",
     "get_spectroscopic_name",
@@ -32,7 +29,7 @@ def interpol(new_x, y, old_x):
     return f(old_x)
 
 def doppler_maxwell(x, xc, T, m):
-    w = xc/const.c * np.sqrt(8 * const.k * T * np.log(2) / (m*const.u))
+    w = xc/const.c * np.sqrt(8 * const.k * T * np.log(2) / m)
     return gauss_function(x, xc, w)
 
 def gauss_function(x, xc, w):
@@ -40,34 +37,11 @@ def gauss_function(x, xc, w):
     return (1/(w*np.sqrt(np.pi/(4*np.log(2)))) *
         np.exp(-4*np.log(2)*(x-xc)**2/w**2)) # gaussian function copied from origin, w is FWHM
 
-def doppler_thompson(x, xc, Eb, m, side=False):
-    vb = np.sqrt(2 * Eb * const.eV / (m*const.u))
-    if side:
-        return thompson_side(x, xc, vb)
-    else:
-        return thompson_function(x, xc, vb)
-
-def thompson_function(x, xc, vb):
-    "Thomspon function derived by myselfe, A is Area; H = y0 + 0.5 A"
-    c = const.c
-    lx = x[x<=xc]
-    rx = x[x>xc]
-    profile = np.append((16/np.pi * (xc*vb/c)**3 * ((lx-xc)**2 / ((lx-xc)**2 + (xc/c * vb)**2)**3)),rx*0)
-    return profile
-
-def thompson_side(x, xc, vb):
-    """Thomspon function derived by e.g. Motohashi et al (Physica Scripta. Vol. T73, 329-331, 1997)
-    A is Area. Normed by myselfe"""
-    c = const.c
-    norm_factor = 0.5 * (xc * vb / c)**2
-    return norm_factor*( (x-xc)**2 + (vb*xc/c)**2 )**(-3/2)
-
 def m_j(j):
     if j == round(j,0):
         return np.append(-np.arange(j+1)[::-1][:-1],np.arange(j+1))
     if j == round(j,0) + 0.5 or  j == round(j,0) - 0.5:
         return np.append(-np.arange(j+0.5)[::-1][:-1],np.arange(j+1.5))-0.5
-
 
 def zeeman(x, cwl, B, upperJ, lowerJ, upperG, lowerG, side=False):
     bm =  const.physical_constants['Bohr magneton'][0]
@@ -175,5 +149,4 @@ def deconv(signal, instr, noise_level):
 lorentz = lorentz_function
 psd_voigt = psd_voigt_function
 gauss = gauss_function
-thompson = thompson_function
 deconvolution = deconv

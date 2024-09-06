@@ -22,8 +22,8 @@ class griem():
             w = self.width(ne,Te,A,we)
             d = self.shift(ne,Te,A,we,de)
         else:
-            w = 1e-12
-            d = 1e-12
+            w = -1
+            d = -1
             print("Stark broadening not implemented for this line.")
         
         return w,d

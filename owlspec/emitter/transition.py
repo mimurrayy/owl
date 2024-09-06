@@ -4,26 +4,35 @@ import numpy as np
 import re
 from ..util import parse_spectroscopic_name, get_spectroscopic_name
 from .level import level
+from .species import species
+from scipy import constants as const
 
 class transition():
-    def __init__(self, emitter_name, wavelength, wl_type="Observed", debug=False):
+    def __init__(self, emitter, wavelength, wl_type="Observed", debug=False):
         """Return the closest transition for the specified emitter to the
         specified wavelength.
-        emitter_name in spectroscopic notation, e.g. O I or Ar II
-        wl_type can be "Observed" or "Ritz" or "either"
+        <emitter>: String in spectroscopic notation, e.g. O I or Ar II or
+                   owlspec.emitter.species object.
+        <wavelength>: Wavelength specifiying the transition in nanometers. 
+                      Chooses the closest match from NIST, might need to 
+                      specify to picometer precision.
+        <wl_type>: One of "Observed", "Ritz" or "either". 
+                   Defaults to "Observed".
         
         Returns a transition object with entries: upperE, lowerE, upperl, 
         lowerl, upperg, lowerg, Aik, wl and the upper 
         and lower levels of the transition: upper_level/lower_level."""
         
-        self.name, self.charge = parse_spectroscopic_name(emitter_name)
-        self.spec_name = get_spectroscopic_name(self.name, self.charge)
-        from mendeleev import element
-        self.emitter = self.particle = element(self.name)
-        self.emitter.charge = self.charge
-        self.emitter.m = self.emitter.mass
-        self.emitter.Ei = self.emitter.ionenergies[1]
-        self.charge = self.emitter.charge
+        if isinstance(emitter, str):
+            self.name, self.charge = parse_spectroscopic_name(emitter)
+            self.spec_name = get_spectroscopic_name(self.name, self.charge)
+            self.emitter = self.particle = species(self.name, q=self.charge*const.e)
+        
+        elif isinstance(emitter, species):
+            self.spec_name = get_spectroscopic_name(emitter.name, emitter.charge)
+            self.charge = emitter.charge
+            self.emitter = self.particle = emitter
+
         # clean up the wl column from NIST levels (e.g. remove '[') below
         non_decimal = re.compile(r'[^\d.]+')
                 

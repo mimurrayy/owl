@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="owlspec",
-    version="0.2.3",
+    version="0.3.0",
     author="Julian Held",
     author_email="julian.held@umn.edu",
     license='MIT',
@@ -16,7 +16,7 @@ setuptools.setup(
     url="https://github.com/mimurrayy/owl",
     packages=setuptools.find_packages(),
     install_requires=[
-          'numpy>=1.23.5', 'scipy>=1.13.0', 'mendeleev>=0.13.0', 'astroquery>=0.4.5', 'roman>=4.0', 'platformdirs>=4.2.0'
+          'numpy>=1.23.5', 'scipy>=1.13.0', 'mendeleev>=0.13.0', 'astroquery>=0.4.5', 'roman>=4.0', 'platformdirs>=4.2.0', 'pyplas>=0.2.0'
       ],
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -10,7 +10,22 @@ class vdW():
         self.pert = pert
 
 
-    def get_profile(self,x, T, n):
+    def supported(self):
+        wl = self.transition.wl
+        x = np.linspace(wl-10, wl+10, 10000)
+        ng = 2e21
+        profile = None
+        try:
+            profile = self.get_profile(x, ng, 500)
+        except:
+            return False
+        if profile is not None:
+            return True
+        else:
+            return False
+
+
+    def get_profile(self,x, n, T):
         middle_wl = x[int(len(x)/2)] - 0.5*abs((x[-1]-x[0])/(len(x)-1))
         if not T:
             print("""Need to provide a gas temperture (in Kelvin).
@@ -33,14 +48,14 @@ class vdW():
         """
         
         xc = self.transition.wl
-        m1 = self.transition.particle.m
-        m2 = self.pert.m
+        m1 = self.transition.particle.m/const.u
+        m2 = self.pert.m/const.u
         Eion = self.transition.particle.Ei
         Eu = self.transition.upperE
         El = self.transition.lowerE
         lu = self.transition.upperl
         ll = self.transition.lowerl
-        alpha = self.pert.dipole_polarizability*const.value('Bohr radius')**3
+        alpha = self.pert.element.dipole_polarizability*const.value('Bohr radius')**3
                 
         return self.get_width2(xc,m1,m2,T,n,Eion,Eu,El,lu,ll,alpha)
 
@@ -80,10 +95,10 @@ class vdW():
         """ Data from NIST: J. Phys. Chem. Ref. Data, Vol. 38, No. 3, 2009"""
         middle_wl = x[int(len(x)/2)] - 0.5*abs((x[-1]-x[0])/(len(x)-1))
         xc = self.transition.wl
-        m1 = self.transition.particle.m
-        m2 = self.pert.m
+        m1 = self.transition.particle.m/const.u
+        m2 = self.pert.m/const.u
         Eion = self.transition.particle.Ei
-        a = self.pert.dipole_polarizability*const.value('Bohr radius')**3
+        a = self.pert.element.dipole_polarizability*const.value('Bohr radius')**3
 
         if round(self.transition.wl, 0) == 656:
             H = self.transition.particle
